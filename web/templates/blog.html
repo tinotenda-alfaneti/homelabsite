@@ -1,0 +1,78 @@
+{{define "blog.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+<section class="page-header">
+    <h1>Blog</h1>
+    <p>My homelab journey, technical deep-dives, and lessons learned</p>
+</section>
+
+<div class="filters">
+    <a href="/blog" class="filter-btn {{ if eq .Category "" }}active{{ end }}">All Posts</a>
+    <a href="/blog?category=Infrastructure" class="filter-btn {{ if eq .Category "Infrastructure" }}active{{ end }}">Infrastructure</a>
+    <a href="/blog?category=DevOps" class="filter-btn {{ if eq .Category "DevOps" }}active{{ end }}">DevOps</a>
+    <a href="/blog?category=Programming" class="filter-btn {{ if eq .Category "Programming" }}active{{ end }}">Programming</a>
+    <a href="/blog?category=Kubernetes" class="filter-btn {{ if eq .Category "Kubernetes" }}active{{ end }}">Kubernetes</a>
+    <a href="/blog?category=Networking" class="filter-btn {{ if eq .Category "Networking" }}active{{ end }}">Networking</a>
+</div>
+
+<div class="posts-list">
+    {{ range .Posts }}
+    <article class="post-preview">
+        <div class="post-meta">
+            <span class="post-category">{{ .Category }}</span>
+            <span class="post-date">{{ .Date.Format "January 2, 2006" }}</span>
+        </div>
+        <h2><a href="/blog/{{ .ID }}">{{ .Title }}</a></h2>
+        <p>{{ .Summary }}</p>
+        {{ if .Tags }}
+        <div class="post-tags">
+            {{ range .Tags }}
+            <span class="tag">{{ . }}</span>
+            {{ end }}
+        </div>
+        {{ end }}
+        <a href="/blog/{{ .ID }}" class="read-more">Read More →</a>
+    </article>
+    {{ end }}
+</div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Atarnet Homelab &copy; Copyright 2025</p>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

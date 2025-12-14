@@ -1,0 +1,523 @@
+{{define "admin.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Admin - {{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .admin-sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+        .admin-form {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 300px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            min-height: 44px;
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tag-input-field {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 150px;
+            padding: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-gray);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .posts-list-admin {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .posts-list-admin h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .post-item-admin {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .post-item-admin:hover {
+            background: var(--bg-gray);
+        }
+
+        .post-item-admin:last-child {
+            border-bottom: none;
+        }
+
+        .post-item-info h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .post-item-meta {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .post-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .char-count {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/admin" style="color: var(--link-color);">Admin</a></li>
+                    <li><a href="/admin/logout" style="color: #dc2626;">Logout</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <div class="posts-list-admin">
+                <h2>All Posts</h2>
+                <div id="posts-list">
+                    {{range .Posts}}
+                    <div class="post-item-admin" onclick="loadPost('{{.ID}}')">
+                        <div class="post-item-info">
+                            <h3>{{.Title}}</h3>
+                            <div class="post-item-meta">
+                                {{.Date.Format "Jan 2, 2006"}} • {{.Category}}
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;" onclick="newPost()">+ New Post</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="admin-form">
+                <h1>Blog Post Editor</h1>
+                
+                <div class="success-message" id="success-msg">Post saved successfully!</div>
+                <div class="error-message" id="error-msg">Error saving post. Please try again.</div>
+
+                <form id="post-form" onsubmit="savePost(event)">
+                    <input type="hidden" id="post-id" name="id">
+
+                    <div class="form-group">
+                        <label for="title">Title *</label>
+                        <input type="text" id="title" name="title" required placeholder="Enter post title">
+                        <div class="char-count"><span id="title-count">0</span> characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="Homelab">Homelab</option>
+                            <option value="DevOps">DevOps</option>
+                            <option value="Kubernetes">Kubernetes</option>
+                            <option value="Development">Development</option>
+                            <option value="Infrastructure">Infrastructure</option>
+                            <option value="Networking">Networking</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="summary">Summary *</label>
+                        <textarea id="summary" name="summary" rows="3" required placeholder="Brief summary of the post (will appear in cards)"></textarea>
+                        <div class="char-count"><span id="summary-count">0</span> characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Content * (Markdown supported)</label>
+                        <textarea id="content" name="content" required placeholder="Write your post content here...
+
+You can use markdown:
+- **bold text**
+- *italic text*
+- # Headings
+- [links](url)
+- Lists
+- Code blocks"></textarea>
+                        <div class="help-text">Supports Markdown formatting. Preview on the blog page.</div>
+                        <div class="char-count"><span id="content-count">0</span> characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tags">Tags (press Enter to add)</label>
+                        <div class="tag-input-container" id="tags-container" onclick="document.getElementById('tag-input').focus()">
+                            <input type="text" id="tag-input" class="tag-input-field" placeholder="Add tags..." onkeydown="handleTagInput(event)">
+                        </div>
+                        <input type="hidden" id="tags" name="tags">
+                        <div class="help-text">Add relevant tags like 'kubernetes', 'docker', 'golang', etc.</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Post</button>
+                        <button type="button" class="btn btn-secondary" onclick="newPost()">New Post</button>
+                        <button type="button" class="btn btn-danger" onclick="deletePost()" id="delete-btn" style="display: none;">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTags = [];
+
+        // Character counters
+        document.getElementById('title').addEventListener('input', (e) => {
+            document.getElementById('title-count').textContent = e.target.value.length;
+        });
+        document.getElementById('summary').addEventListener('input', (e) => {
+            document.getElementById('summary-count').textContent = e.target.value.length;
+        });
+        document.getElementById('content').addEventListener('input', (e) => {
+            document.getElementById('content-count').textContent = e.target.value.length;
+        });
+
+        function handleTagInput(event) {
+            if (event.key === 'Enter' && event.target.value.trim()) {
+                event.preventDefault();
+                const tag = event.target.value.trim();
+                if (!currentTags.includes(tag)) {
+                    currentTags.push(tag);
+                    updateTagsDisplay();
+                }
+                event.target.value = '';
+            }
+        }
+
+        function removeTag(tag) {
+            currentTags = currentTags.filter(t => t !== tag);
+            updateTagsDisplay();
+        }
+
+        function updateTagsDisplay() {
+            const container = document.getElementById('tags-container');
+            const input = document.getElementById('tag-input');
+            const tagsHidden = document.getElementById('tags');
+            
+            // Clear current tags display
+            const existingTags = container.querySelectorAll('.tag-item');
+            existingTags.forEach(tag => tag.remove());
+            
+            // Add tags
+            currentTags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag-item';
+                tagEl.innerHTML = `${tag} <span class="tag-remove" onclick="removeTag('${tag}')">×</span>`;
+                container.insertBefore(tagEl, input);
+            });
+            
+            // Update hidden field
+            tagsHidden.value = JSON.stringify(currentTags);
+        }
+
+        function newPost() {
+            document.getElementById('post-form').reset();
+            document.getElementById('post-id').value = '';
+            currentTags = [];
+            updateTagsDisplay();
+            document.getElementById('delete-btn').style.display = 'none';
+            document.getElementById('success-msg').classList.remove('show');
+            document.getElementById('error-msg').classList.remove('show');
+        }
+
+        function loadPost(id) {
+            fetch(`/api/posts/${id}`)
+                .then(res => res.json())
+                .then(post => {
+                    document.getElementById('post-id').value = post.id;
+                    document.getElementById('title').value = post.title;
+                    document.getElementById('category').value = post.category;
+                    document.getElementById('summary').value = post.summary;
+                    document.getElementById('content').value = post.content;
+                    currentTags = post.tags || [];
+                    updateTagsDisplay();
+                    document.getElementById('delete-btn').style.display = 'block';
+                    
+                    // Update character counts
+                    document.getElementById('title-count').textContent = post.title.length;
+                    document.getElementById('summary-count').textContent = post.summary.length;
+                    document.getElementById('content-count').textContent = post.content.length;
+                    
+                    // Scroll to top
+                    window.scrollTo(0, 0);
+                })
+                .catch(err => {
+                    console.error('Error loading post:', err);
+                    showError();
+                });
+        }
+
+        function savePost(event) {
+            event.preventDefault();
+            
+            const formData = {
+                id: document.getElementById('post-id').value || generateId(),
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                summary: document.getElementById('summary').value,
+                content: document.getElementById('content').value,
+                tags: currentTags,
+                date: new Date().toISOString()
+            };
+
+            fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess();
+                    // Update post ID if it was new
+                    if (!document.getElementById('post-id').value) {
+                        document.getElementById('post-id').value = formData.id;
+                    }
+                    document.getElementById('delete-btn').style.display = 'block';
+                    // Reload page to update sidebar
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showError();
+                }
+            })
+            .catch(err => {
+                console.error('Error saving post:', err);
+                showError();
+            });
+        }
+
+        function deletePost() {
+            const id = document.getElementById('post-id').value;
+            if (!id) return;
+            
+            if (confirm('Are you sure you want to delete this post?')) {
+                fetch(`/api/posts/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Post deleted successfully!');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showError();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error deleting post:', err);
+                    showError();
+                });
+            }
+        }
+
+        function generateId() {
+            return 'post-' + Date.now();
+        }
+
+        function showSuccess(msg = 'Post saved successfully!') {
+            const el = document.getElementById('success-msg');
+            el.textContent = msg;
+            el.classList.add('show');
+            document.getElementById('error-msg').classList.remove('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        function showError(msg = 'Error saving post. Please try again.') {
+            const el = document.getElementById('error-msg');
+            el.textContent = msg;
+            el.classList.add('show');
+            document.getElementById('success-msg').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
+{{end}}

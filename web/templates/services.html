@@ -1,0 +1,145 @@
+{{define "services.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+<section class="page-header">
+    <h1>Services</h1>
+    <p>All the services running in my Kubernetes homelab</p>
+</section>
+
+<div class="filters">
+    <button class="filter-btn active" hx-get="/api/services" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">All</button>
+    <button class="filter-btn" hx-get="/api/services?status=internal" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Internal</button>
+    <button class="filter-btn" hx-get="/api/services?status=public" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Public</button>
+    <button class="filter-btn" hx-get="/api/services?status=development" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Development</button>
+</div>
+
+<script>
+function setActiveFilter(btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+</script>
+
+<div id="services-container" class="services-grid">
+    {{ range .Services }}
+    <div class="service-card">
+        {{ if ne .Icon "" }}
+        <div class="service-icon">{{ .Icon }}</div>
+        {{ end }}
+        <h3>{{ .Name }}</h3>
+        <p>{{ .Description }}</p>
+        <div class="service-meta">
+            <span class="tech-badge">{{ .Tech }}</span>
+            <span class="status-badge status-{{ .Status }}">{{ .Status }}</span>
+        </div>
+        {{ if ne .URL "" }}
+        <a href="{{ .URL }}" target="_blank" class="service-link">Visit →</a>
+        {{ end }}
+    </div>
+    {{ end }}
+</div>
+    </main>
+
+<section class="tech-stack">
+    <div class="container">
+        <h2>Technology Stack</h2>
+        <div class="tech-categories">
+            <div class="tech-category">
+                <h3>Orchestration</h3>
+                <ul>
+                    <li>MicroK8s on Raspberry Pi 4</li>
+                    <li>3-node ARM64 cluster</li>
+                    <li>Calico CNI networking</li>
+                    <li>NGINX Ingress Controller</li>
+                    <li>Helm 3 for deployments</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h3>CI/CD</h3>
+                <ul>
+                    <li>Jenkins</li>
+                    <li>Kaniko (Rootless Builds)</li>
+                    <li>Trivy Security Scanning</li>
+                    <li>Docker Hub Registry</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h3>Development</h3>
+                <ul>
+                    <li>Go (Primary Language)</li>
+                    <li>React + Vite</li>
+                    <li>HTMX</li>
+                    <li>Node.js</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h3>Networking</h3>
+                <ul>
+                    <li>Cloudflare Zero Trust Tunnels</li>
+                    <li>Automated TLS Certificates</li>
+                    <li>Cloudflare DNS</li>
+                    <li>NGINX Ingress</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Atarnet Homelab &copy; Copyright 2025</p>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}
+
+{{define "services-grid"}}
+{{ range .Services }}
+<div class="service-card">
+    {{ if ne .Icon "" }}
+    <div class="service-icon">{{ .Icon }}</div>
+    {{ end }}
+    <h3>{{ .Name }}</h3>
+    <p>{{ .Description }}</p>
+    <div class="service-meta">
+        <span class="tech-badge">{{ .Tech }}</span>
+        <span class="status-badge status-{{ .Status }}">{{ .Status }}</span>
+    </div>
+    {{ if ne .URL "" }}
+    <a href="{{ .URL }}" target="_blank" class="service-link">Visit →</a>
+    {{ end }}
+</div>
+{{ end }}
+{{end}}

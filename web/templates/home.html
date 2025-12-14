@@ -1,0 +1,107 @@
+{{define "home.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Atarnet Homelab</h1>
+                <p class="hero-subtitle">Kubernetes Infrastructure on Raspberry Pi</p>
+                <p class="hero-description">
+                    A 3-node MicroK8s cluster running on ARM64 Raspberry Pi 4 hardware. Automated CI/CD with Jenkins and Kaniko, 
+                    secure ingress via Cloudflare Zero Trust, and comprehensive monitoring with Prometheus and Grafana.
+                </p>
+                <div class="hero-cta">
+                    <a href="/blog" class="btn btn-primary">Read the Blog</a>
+                    <a href="/services" class="btn btn-secondary">Explore Services</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Latest Posts</h2>
+                    <a href="/blog" class="section-link">View All →</a>
+                </div>
+                <div class="posts-grid">
+                    {{ range .Posts }}
+                    <article class="post-card">
+                        <a href="/blog/{{.ID}}">
+                            <div class="post-card-content">
+                                <div class="post-category">{{ .Category }}</div>
+                                <h3 class="post-card-title">{{ .Title }}</h3>
+                                <p class="post-summary">{{ .Summary }}</p>
+                                <div class="post-meta">
+                                    <span class="post-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                    {{ end }}
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Homelab Services</h2>
+                    <a href="/services" class="section-link">View All →</a>
+                </div>
+                <div class="services-grid">
+                    {{ range .Services }}
+                    <div class="service-card">
+                        <h3>{{ .Name }}</h3>
+                        <p>{{ .Description }}</p>
+                        <div class="service-meta">
+                            <span class="tech-badge">{{ .Tech }}</span>
+                            <span class="status-badge status-{{ .Status }}">{{ .Status }}</span>
+                        </div>
+                        {{ if ne .URL "" }}
+                        <a href="{{ .URL }}" target="_blank" class="service-link">Visit →</a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Atarnet Homelab &copy; Copyright 2025</p>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

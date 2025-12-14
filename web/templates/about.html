@@ -1,0 +1,203 @@
+{{define "about.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="page-header">
+            <h1>About Atarnet</h1>
+            <p>Where enterprise engineering meets hands-on learning</p>
+        </section>
+
+        <div class="about-content">
+            <section class="about-section">
+                <h2>The Mission</h2>
+                <p>
+                    Atarnet Homelab is a Kubernetes-based infrastructure running on ARM64 hardware, designed to 
+                    implement and test enterprise-grade practices in a self-hosted environment. The cluster runs 
+                    production workloads with proper CI/CD pipelines, monitoring, and security controls—treating 
+                    home infrastructure with the same engineering discipline as commercial systems.
+                </p>
+                <p>
+                    By day, I'm a Software Engineer, Infrastructure Engineer, and Cloud Engineer architecting and building 
+                    production systems. By night, I'm the DevOps engineer, the SRE, the security team, and the infrastructure 
+                    specialist—all rolled into one. This hands-on approach has taught me more about distributed systems, 
+                    container orchestration, and production operations than any certification ever could.
+                </p>
+            </section>
+
+            <section class="about-section">
+                <h2>Why Build a Homelab?</h2>
+                <p>
+                    The real question is: why not? In an era where "it works on my machine" becomes "it works in production," 
+                    understanding the full stack—from bare metal to application—is invaluable. My homelab serves three critical purposes:
+                </p>
+                <ul>
+                    <li><strong>Continuous Learning:</strong> Experimenting with cutting-edge technologies like Kubernetes operators, service meshes, and GitOps workflows</li>
+                    <li><strong>Real Production Experience:</strong> Running actual services with real users teaches lessons no tutorial can provide</li>
+                    <li><strong>Self-Sufficiency:</strong> Taking control of my data, my applications, and my digital life away from big tech</li>
+                </ul>
+            </section>
+
+            <section class="about-section">
+                <h2>The Infrastructure</h2>
+                <div class="setup-grid">
+                    <div class="setup-item">
+                        <h3>Compute Layer</h3>
+                        <ul>
+                            <li>3x Raspberry Pi 4 nodes (ARM64)</li>
+                            <li>MicroK8s Kubernetes distribution</li>
+                            <li>Calico CNI for pod networking</li>
+                            <li>High-availability control plane</li>
+                        </ul>
+                    </div>
+                    <div class="setup-item">
+                        <h3>Networking & Security</h3>
+                        <ul>
+                            <li>NGINX Ingress Controller</li>
+                            <li>Cloudflare Zero Trust tunnels</li>
+                            <li>Automated SSL/TLS certificates</li>
+                            <li>DNS management via Cloudflare</li>
+                        </ul>
+                    </div>
+                    <div class="setup-item">
+                        <h3>CI/CD Pipeline</h3>
+                        <ul>
+                            <li>Jenkins for build orchestration</li>
+                            <li>Kaniko for rootless container builds</li>
+                            <li>Trivy for vulnerability scanning</li>
+                            <li>Helm 3 for deployment packaging</li>
+                            <li>Docker Hub for image registry</li>
+                        </ul>
+                    </div>
+                    <div class="setup-item">
+                        <h3>Observability</h3>
+                        <ul>
+                            <li>Prometheus for metrics collection</li>
+                            <li>Grafana for visualization & alerting</li>
+                            <li>Uptime Kuma for service monitoring</li>
+                            <li>Container-native logging</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="about-section">
+                <h2>Production Services</h2>
+                <p>
+                    Running 10+ production services across multiple domains, each containerized, deployed via Helm, 
+                    and monitored 24/7. These aren't hobby projects—they're real applications serving real users 
+                    with uptime SLAs and automated failover.
+                </p>
+                <ul>
+                    <li><strong>AvidLearner:</strong> AI-powered Go learning platform with real-time typing challenges and automated lesson generation</li>
+                    <li><strong>Ebook Reader:</strong> Self-hosted digital library with progress sync, annotations, and cross-device reading</li>
+                    <li><strong>Rebalancer Operator:</strong> Custom Kubernetes operator implementing intelligent pod redistribution algorithms</li>
+                    <li><strong>LabMan CLI:</strong> Sophisticated remote homelab management toolkit with SSH multiplexing and session management</li>
+                    <li><strong>Music Streaming:</strong> Personal Navidrome instance serving my entire music collection with Subsonic compatibility</li>
+                    <li><strong>Monitoring Stack:</strong> Comprehensive observability with Prometheus, Grafana, and Uptime Kuma</li>
+                </ul>
+            </section>
+
+            <section class="about-section">
+                <h2>The Technology Philosophy</h2>
+                <p>
+                    Every technology choice is deliberate. I favor Go for its performance, single-binary deployments, 
+                    and excellent standard library. React powers rich frontends when needed, while HTMX keeps things 
+                    lightweight for simpler interfaces. Kubernetes provides the orchestration layer, and I chose MicroK8s 
+                    for its lightweight design, snap-based installation, and excellent ARM64 support on Raspberry Pi.
+                </p>
+                <p>
+                    Security isn't an afterthought—it's baked in from the start. All traffic flows through Cloudflare's 
+                    zero-trust network, containers run with minimal privileges, images are scanned before deployment, 
+                    and secrets never touch version control.
+                </p>
+            </section>
+
+            <section class="about-section">
+                <h2>Lessons Learned</h2>
+                <p>
+                    Building and maintaining production infrastructure teaches lessons that no book or course can convey:
+                </p>
+                <ul>
+                    <li>How to debug a pod stuck in CrashLoopBackOff at 2 AM</li>
+                    <li>Why idempotent deployments save you from catastrophic rollbacks</li>
+                    <li>The importance of backups (learned the hard way)</li>
+                    <li>How to optimize resource limits to squeeze every bit of performance</li>
+                    <li>Why monitoring and alerting are non-negotiable in production</li>
+                </ul>
+                <p>
+                    Every outage is a learning opportunity. Every performance bottleneck is a chance to dive deeper 
+                    into system internals. Every security vulnerability discovered is a reminder to stay paranoid.
+                </p>
+            </section>
+
+            <section class="about-section">
+                <h2>What's Next</h2>
+                <p>
+                    The homelab is never "done." It's a living, evolving system that grows with emerging technologies 
+                    and personal curiosity. Current experiments and future plans include:
+                </p>
+                <ul>
+                    <li>GitOps with ArgoCD for declarative, Git-driven deployments</li>
+                    <li>Service mesh exploration with Istio or Linkerd for advanced traffic management</li>
+                    <li>Automated disaster recovery and backup strategies with Velero</li>
+                    <li>Distributed tracing implementation with Jaeger and OpenTelemetry</li>
+                    <li>Expanding the ARM cluster with additional Raspberry Pi nodes</li>
+                    <li>Advanced CI/CD pipeline improvements and security hardening</li>
+                </ul>
+            </section>
+
+            <section class="about-section">
+                <h2>Connect & Collaborate</h2>
+                <p>
+                    Whether you're building your own homelab, wrestling with Kubernetes, or just curious about 
+                    infrastructure engineering, I'd love to hear from you. Check out the blog for technical deep-dives, 
+                    explore the services to see what's possible, or reach out via 
+                    <a href="https://github.com/tinotenda-alfaneti" target="_blank" rel="noopener noreferrer">GitHub</a> 
+                    to collaborate on open-source projects.
+                </p>
+                <p>
+                    This journey is documented openly—successes, failures, and everything in between. Because the best 
+                    way to learn is to build, break, fix, and share the knowledge along the way.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Atarnet Homelab &copy; Copyright 2025</p>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

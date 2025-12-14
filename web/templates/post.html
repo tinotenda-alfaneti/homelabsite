@@ -1,0 +1,68 @@
+{{define "post.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+<article class="post-full">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-category">{{ .Post.Category }}</span>
+            <span class="post-date">{{ .Post.Date.Format "January 2, 2006" }}</span>
+        </div>
+        <h1>{{ .Post.Title }}</h1>
+        {{ if .Post.Tags }}
+        <div class="post-tags">
+            {{ range .Post.Tags }}
+            <span class="tag">{{ . }}</span>
+            {{ end }}
+        </div>
+        {{ end }}
+    </header>
+
+    <div class="post-content">
+        {{ markdown .Post.Content }}
+    </div>
+
+    <footer class="post-footer">
+        <a href="/blog" class="back-link">← Back to Blog</a>
+    </footer>
+</article>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Atarnet Homelab &copy; Copyright 2025</p>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

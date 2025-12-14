@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-build-pilabsite
+  namespace: default
+spec:
+  restartPolicy: Never
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:v1.23.0
+    args:
+    - "--context=git://github.com/tinotenda-alfaneti/pilabsite.git#refs/heads/main"
+    - "--dockerfile=Dockerfile"
+    - "--destination=tinorodney/pilabsite:TAG_PLACEHOLDER"
+    - "--cache=true"
+    - "--cache-ttl=24h"
+    volumeMounts:
+    - name: docker-config
+      mountPath: /kaniko/.docker/
+      readOnly: true
+  volumes:
+  - name: docker-config
+    secret:
+      secretName: docker-registry-secret
+      items:
+      - key: .dockerconfigjson
+        path: config.json

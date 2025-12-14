@@ -1,0 +1,53 @@
+replicaCount: 1
+
+image:
+  repository: ""   # e.g. tinorodney/homelabsite
+  tag: ""          # e.g. latest or v0.0.1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: www.atarnet.org
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: homelabsite-tls
+      hosts:
+        - www.atarnet.org
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+# Environment variables (for non-sensitive config)
+env:
+  PORT: "8082"
+
+# Environment variables from secrets (for sensitive data like passwords)
+# Create the secret first: kubectl create secret generic homelab-admin-creds \
+#   --from-literal=ADMIN_USER=admin \
+#   --from-literal=ADMIN_PASS=YourSecurePassword
+envFrom:
+  - secretRef:
+      name: homelab-admin-creds
+
+configMap:
+  enabled: true
+  mountPath: /srv/config
+  files:
+    config.yaml: |
+      # Config will be mounted from ConfigMap
