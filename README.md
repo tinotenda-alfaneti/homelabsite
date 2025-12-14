@@ -1,7 +1,7 @@
 # Atarnet Homelab Site
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Go Version](https://img.shields.io/badge/go-1.22-blue)]()
+[![Go Version](https://img.shields.io/badge/go-1.25-blue)]()
 
 A personal homelab portfolio and blog showcasing my Kubernetes infrastructure, services, and technical journey as a Senior Software Engineer.
 
