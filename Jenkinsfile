@@ -5,7 +5,7 @@ pipeline {
     GITHUB_USER     = "tinotenda-alfaneti"
     REPO_NAME       = "${env.JOB_NAME.split('/')[1]}"
     IMAGE_NAME      = "tinorodney/${REPO_NAME}"
-    TAG             = "v0.0.3"
+    TAG             = "v0.0.4"
     APP_NAME        = "${REPO_NAME}"
     NAMESPACE       = "${REPO_NAME}-ns"
     SOURCE_NS       = "test-ns"
@@ -158,7 +158,9 @@ pipeline {
               --create-namespace \
               --set image.repository=${IMAGE_NAME} \
               --set image.tag=${TAG} \
-              --set-file initialConfig=$WORKSPACE/config/config.yaml \
+              --set-file configMap.files.config\\.yaml=$WORKSPACE/config/config.yaml \
+              --set-file initialData.posts=$WORKSPACE/data/posts.yaml \
+              --set-file initialData.services=$WORKSPACE/data/services.yaml \
               --wait --timeout 5m
 
             echo "Deployment complete!"
