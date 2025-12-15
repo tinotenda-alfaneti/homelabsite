@@ -3,27 +3,28 @@ kind: Job
 metadata:
   name: kaniko-job
 spec:
-  ttlSecondsAfterFinished: 300
   template:
     spec:
+      serviceAccountName: kaniko-builder
       restartPolicy: Never
       containers:
-      - name: kaniko
-        image: gcr.io/kaniko-project/executor:v1.23.0
-        args:
-        - "--context=__CONTEXT_URL__#refs/heads/main"
-        - "--dockerfile=Dockerfile"
-        - "--destination=__IMAGE_DEST__"
-        - "--cache=true"
-        - "--cache-ttl=24h"
-        volumeMounts:
-        - name: docker-config
-          mountPath: /kaniko/.docker/
-          readOnly: true
+        - name: kaniko
+          image: gcr.io/kaniko-project/executor:v1.17.0
+          args:
+            - "--dockerfile=Dockerfile"
+            - "--context=__CONTEXT_URL__"            # e.g. https://github.com/<user>/<repo>.git#main
+            - "--destination=__IMAGE_DEST__"         # e.g. tinorodney/<repo>:<tag>
+            - "--verbosity=info"
+            - "--cleanup"
+          volumeMounts:
+            - name: docker-config
+              mountPath: /kaniko/.docker/
       volumes:
-      - name: docker-config
-        secret:
-          secretName: dockerhub-creds
-          items:
-          - key: .dockerconfigjson
-            path: config.json
+        - name: docker-config
+          projected:
+            sources:
+              - secret:
+                  name: dockerhub-creds
+                  items:
+                    - key: .dockerconfigjson
+                      path: config.json
