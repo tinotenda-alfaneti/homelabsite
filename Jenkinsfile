@@ -162,19 +162,28 @@ pipeline {
 
             echo "Checking if PersistentVolume needs initialization..."
             
-            # Wait for pod to be ready
-            $WORKSPACE/bin/kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --timeout=2m
+            # Delete old pods first to avoid confusion
+            echo "Cleaning up old pods..."
+            $WORKSPACE/bin/kubectl delete pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --field-selector=status.phase!=Running --ignore-not-found=true
             
-            # Get pod name
+            # Wait for the new pod to be ready
+            echo "Waiting for pod to be ready..."
+            $WORKSPACE/bin/kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --timeout=3m
+            
+            # Get the running pod name
             POD=$($WORKSPACE/bin/kubectl get pod -n ${NAMESPACE} -l app.kubernetes.io/name=app -o jsonpath='{.items[0].metadata.name}')
+            echo "Using pod: $POD"
             
             # Check if config.yaml exists in PersistentVolume
-            if ! $WORKSPACE/bin/kubectl exec -n ${NAMESPACE} $POD -- test -f /app/config/config.yaml; then
+            if ! $WORKSPACE/bin/kubectl exec -n ${NAMESPACE} $POD -- test -f /app/config/config.yaml 2>/dev/null; then
               echo "Initializing config.yaml in PersistentVolume..."
               $WORKSPACE/bin/kubectl cp $WORKSPACE/config/config.yaml ${NAMESPACE}/$POD:/app/config/config.yaml
               echo "Config initialized. Restarting pod to load config..."
               $WORKSPACE/bin/kubectl delete pod $POD -n ${NAMESPACE}
-              $WORKSPACE/bin/kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --timeout=2m
+              echo "Waiting for pod to restart..."
+              sleep 5
+              $WORKSPACE/bin/kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --timeout=3m
+              echo "Pod restarted successfully."
             else
               echo "Config already exists in PersistentVolume, skipping initialization."
             fi
