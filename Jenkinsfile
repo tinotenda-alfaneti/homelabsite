@@ -5,7 +5,7 @@ pipeline {
     GITHUB_USER     = "tinotenda-alfaneti"
     REPO_NAME       = "${env.JOB_NAME.split('/')[1]}"
     IMAGE_NAME      = "tinorodney/${REPO_NAME}"
-    TAG             = "v0.0.4"
+    TAG             = "v0.0.5"
     APP_NAME        = "${REPO_NAME}"
     NAMESPACE       = "${REPO_NAME}-ns"
     SOURCE_NS       = "test-ns"
@@ -152,12 +152,16 @@ pipeline {
             export KUBECONFIG=$WORKSPACE/.kube/config
             echo "Deploying ${APP_NAME} via Helm..."
 
-            # Deploy with Helm - data files are already in values.yaml
+            # Generate values file with embedded data
+            bash $WORKSPACE/scripts/generate-helm-values.sh
+
+            # Deploy with Helm
             $WORKSPACE/bin/helm upgrade --install ${APP_NAME} $WORKSPACE/charts/app \
               --namespace ${NAMESPACE} \
               --create-namespace \
               --set image.repository=${IMAGE_NAME} \
               --set image.tag=${TAG} \
+              -f /tmp/helm-data-values.yaml \
               --wait --timeout 5m
 
             echo "Deployment complete!"
