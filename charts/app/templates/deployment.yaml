@@ -16,6 +16,26 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.persistence.enabled }}
+      initContainers:
+      - name: init-config
+        image: busybox:latest
+        command: ['sh', '-c']
+        args:
+          - |
+            if [ ! -f /app/config/config.yaml ]; then
+              echo "Copying initial config to PersistentVolume..."
+              cp /init-config/config.yaml /app/config/config.yaml
+              echo "Config initialized."
+            else
+              echo "Config already exists, skipping initialization."
+            fi
+        volumeMounts:
+        - name: data
+          mountPath: /app/config
+        - name: init-config
+          mountPath: /init-config
+      {{- end }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -69,6 +89,9 @@ spec:
           name: {{ include "app.fullname" . }}-config
       {{- end }}
       {{- if .Values.persistence.enabled }}
+      - name: init-config
+        configMap:
+          name: {{ include "app.fullname" . }}-init-config
       - name: data
         persistentVolumeClaim:
           claimName: {{ include "app.fullname" . }}-data
