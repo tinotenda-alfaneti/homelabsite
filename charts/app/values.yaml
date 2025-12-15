@@ -89,6 +89,9 @@ configMap:
 
 # Initial data to populate PVC on first deployment
 # This data will be copied to the PVC by the init container only if the files don't exist
+# After first deploy, use the admin UI to add/edit posts and services
 initialData:
-  posts: {}  # Will be populated from ../../data/posts.yaml during deployment
-  services: {}  # Will be populated from ../../data/services.yaml during deployment
+  posts:
+    posts: []
+  services:
+    services: []

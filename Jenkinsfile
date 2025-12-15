@@ -152,31 +152,12 @@ pipeline {
             export KUBECONFIG=$WORKSPACE/.kube/config
             echo "Deploying ${APP_NAME} via Helm..."
 
-            # Create a temporary values file with the data
-            cat > /tmp/helm-values-override.yaml <<EOF
-image:
-  repository: ${IMAGE_NAME}
-  tag: ${TAG}
-
-configMap:
-  enabled: true
-  mountPath: /srv/config
-  files:
-    config.yaml: |
-$(cat $WORKSPACE/config/config.yaml | sed 's/^/      /')
-
-initialData:
-  posts:
-$(cat $WORKSPACE/data/posts.yaml | sed 's/^/    /')
-  services:
-$(cat $WORKSPACE/data/services.yaml | sed 's/^/    /')
-EOF
-
-            # Deploy with Helm using the values file
+            # Deploy with Helm - data files are already in values.yaml
             $WORKSPACE/bin/helm upgrade --install ${APP_NAME} $WORKSPACE/charts/app \
               --namespace ${NAMESPACE} \
               --create-namespace \
-              -f /tmp/helm-values-override.yaml \
+              --set image.repository=${IMAGE_NAME} \
+              --set image.tag=${TAG} \
               --wait --timeout 5m
 
             echo "Deployment complete!"
