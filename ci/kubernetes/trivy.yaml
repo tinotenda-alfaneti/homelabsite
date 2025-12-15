@@ -1,18 +1,20 @@
-apiVersion: v1
-kind: Pod
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: trivy-scan-homelabsite
-  namespace: default
+  name: trivy-scan
 spec:
-  restartPolicy: Never
-  containers:
-  - name: trivy
-    image: aquasec/trivy:latest
-    command:
-    - trivy
-    args:
-    - image
-    - --exit-code=1
-    - --severity=HIGH,CRITICAL
-    - --no-progress
-    - tinorodney/pilabsite:TAG_PLACEHOLDER
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: trivy
+          image: aquasec/trivy:latest
+          args:
+            [
+              "image",
+              "--severity",
+              "HIGH,CRITICAL",
+              "--no-progress",
+              "__IMAGE_DEST__"
+            ]
