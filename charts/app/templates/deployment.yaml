@@ -22,7 +22,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http
-          containerPort: 8080
+          containerPort: {{ .Values.env.PORT | default 8082 }}
           protocol: TCP
         {{- if .Values.env }}
         env:
@@ -52,15 +52,24 @@ spec:
           periodSeconds: 10
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.configMap.enabled }}
         volumeMounts:
+        {{- if .Values.configMap.enabled }}
         - name: config
           mountPath: {{ .Values.configMap.mountPath }}
           readOnly: true
         {{- end }}
-      {{- if .Values.configMap.enabled }}
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          mountPath: {{ .Values.persistence.mountPath }}
+        {{- end }}
       volumes:
+      {{- if .Values.configMap.enabled }}
       - name: config
         configMap:
           name: {{ include "app.fullname" . }}-config
+      {{- end }}
+      {{- if .Values.persistence.enabled }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "app.fullname" . }}-data
       {{- end }}

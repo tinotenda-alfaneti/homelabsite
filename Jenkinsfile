@@ -152,12 +152,32 @@ pipeline {
             export KUBECONFIG=$WORKSPACE/.kube/config
             echo "Deploying ${APP_NAME} via Helm..."
 
+            # Deploy with Helm
             $WORKSPACE/bin/helm upgrade --install ${APP_NAME} $WORKSPACE/charts/app \
               --namespace ${NAMESPACE} \
               --create-namespace \
               --set image.repository=${IMAGE_NAME} \
               --set image.tag=${TAG} \
               --wait --timeout 5m
+
+            echo "Checking if PersistentVolume needs initialization..."
+            
+            # Wait for pod to be ready
+            $WORKSPACE/bin/kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --timeout=2m
+            
+            # Get pod name
+            POD=$($WORKSPACE/bin/kubectl get pod -n ${NAMESPACE} -l app.kubernetes.io/name=app -o jsonpath='{.items[0].metadata.name}')
+            
+            # Check if config.yaml exists in PersistentVolume
+            if ! $WORKSPACE/bin/kubectl exec -n ${NAMESPACE} $POD -- test -f /app/config/config.yaml; then
+              echo "Initializing config.yaml in PersistentVolume..."
+              $WORKSPACE/bin/kubectl cp $WORKSPACE/config/config.yaml ${NAMESPACE}/$POD:/app/config/config.yaml
+              echo "Config initialized. Restarting pod to load config..."
+              $WORKSPACE/bin/kubectl delete pod $POD -n ${NAMESPACE}
+              $WORKSPACE/bin/kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=app -n ${NAMESPACE} --timeout=2m
+            else
+              echo "Config already exists in PersistentVolume, skipping initialization."
+            fi
 
           '''
         }

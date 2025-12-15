@@ -14,7 +14,7 @@ ingress:
   className: nginx
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"  # Cloudflare handles SSL
   hosts:
     - host: www.atarnet.org
       paths:
@@ -45,9 +45,19 @@ envFrom:
   - secretRef:
       name: homelab-admin-creds
 
+# Persistent storage for dynamic config (posts, services)
+persistence:
+  enabled: true
+  storageClass: ""  # Use default storage class
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  mountPath: /app/config
+
 configMap:
   enabled: true
   mountPath: /srv/config
+  # The config.yaml content should be populated from ../../config/config.yaml during deployment
+  # For now, mount an empty config - update via: kubectl create configmap homelabsite-app-config --from-file=config.yaml=../../config/config.yaml -n homelabsite-ns
   files:
     config.yaml: |
       # Config will be mounted from ConfigMap
