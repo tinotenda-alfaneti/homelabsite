@@ -1,0 +1,61 @@
+services:
+    - name: AvidLearner
+      description: Interactive Go learning platform with AI-powered lesson generation and typing challenges
+      url: https://avidlearner.atarnet.org
+      tech: Go + React + Vite
+      status: public
+      icon: ""
+    - name: Jenkins
+      description: CI/CD automation server orchestrating builds, tests, and deployments across the homelab
+      url: https://jenkins.atarnet.org
+      tech: Java + Kubernetes
+      status: internal
+      icon: ""
+    - name: Navidrome
+      description: Self-hosted music streaming server with Subsonic API compatibility
+      url: https://music.atarnet.org
+      tech: Go + Web
+      status: internal
+      icon: ""
+    - name: Uptime Kuma
+      description: Self-hosted monitoring tool for tracking service uptime and performance
+      url: https://uptime.atarnet.org
+      tech: Node.js + Vue
+      status: public
+      icon: ""
+    - name: Poetry Blog
+      description: Publishing platform for content and articles
+      url: https://writer.atarnet.org
+      tech: Node.js
+      status: public
+      icon: ""
+    - name: Ebook Reader
+      description: Self-hosted ebook library and reader with progress tracking
+      url: https://ebooks.atarnet.org
+      tech: Go + Vanilla JS
+      status: internal
+      icon: ""
+    - name: Prometheus
+      description: Metrics collection and monitoring for all homelab services and infrastructure
+      url: https://prometheus.atarnet.org
+      tech: Go + PromQL
+      status: internal
+      icon: ""
+    - name: Grafana
+      description: Visualization and analytics platform for infrastructure metrics and logs
+      url: https://grafana.atarnet.org
+      tech: Go + TypeScript
+      status: internal
+      icon: ""
+    - name: Rebalancer Operator
+      description: Kubernetes operator for intelligent pod rebalancing and resource optimization
+      url: https://rebalancer.atarnet.org
+      tech: Go + Kubernetes
+      status: development
+      icon: ""
+    - name: LabMan CLI
+      description: Command-line tool for managing remote homelab sessions via SSH
+      url: https://github.com/tinotenda-alfaneti/labman
+      tech: Go + Cobra
+      status: public
+      icon: ""

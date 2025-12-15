@@ -102,46 +102,6 @@
             padding: 0.25rem;
         }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-gray);
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #b91c1c;
-        }
-
         .form-actions {
             display: flex;
             gap: 1rem;
@@ -171,7 +131,7 @@
         }
 
         .post-item-admin:hover {
-            background: var(--bg-gray);
+            background: var(--bg-light);
         }
 
         .post-item-admin:last-child {
@@ -191,11 +151,6 @@
         .post-item-actions {
             display: flex;
             gap: 0.5rem;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
         }
 
         .success-message {
@@ -248,7 +203,7 @@
                     <li><a href="/services">Services</a></li>
                     <li><a href="/blog">Blog</a></li>
                     <li><a href="/about">About</a></li>
-                    <li><a href="/admin" style="color: var(--link-color);">Admin</a></li>
+                    <li><a href="/admin" style="color: var(--accent);">Admin</a></li>
                     <li><a href="/admin/logout" style="color: #dc2626;">Logout</a></li>
                     <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
                 </ul>

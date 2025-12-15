@@ -18,23 +18,24 @@ spec:
     spec:
       {{- if .Values.persistence.enabled }}
       initContainers:
-      - name: init-config
+      - name: init-data
         image: busybox:latest
         command: ['sh', '-c']
         args:
           - |
-            if [ ! -f /app/config/config.yaml ]; then
-              echo "Copying initial config to PersistentVolume..."
-              cp /init-config/config.yaml /app/config/config.yaml
-              echo "Config initialized."
+            if [ ! -f /app/data/posts.yaml ]; then
+              echo "Copying initial data to PersistentVolume..."
+              cp /init-data/posts.yaml /app/data/posts.yaml
+              cp /init-data/services.yaml /app/data/services.yaml
+              echo "Data initialized."
             else
-              echo "Config already exists, skipping initialization."
+              echo "Data already exists, skipping initialization."
             fi
         volumeMounts:
         - name: data
-          mountPath: /app/config
-        - name: init-config
-          mountPath: /init-config
+          mountPath: /app/data
+        - name: init-data
+          mountPath: /init-data
       {{- end }}
       containers:
       - name: {{ .Chart.Name }}
@@ -75,12 +76,12 @@ spec:
         volumeMounts:
         {{- if .Values.configMap.enabled }}
         - name: config
-          mountPath: {{ .Values.configMap.mountPath }}
+          mountPath: /srv/config
           readOnly: true
         {{- end }}
         {{- if .Values.persistence.enabled }}
         - name: data
-          mountPath: {{ .Values.persistence.mountPath }}
+          mountPath: /app/data
         {{- end }}
       volumes:
       {{- if .Values.configMap.enabled }}
@@ -89,9 +90,9 @@ spec:
           name: {{ include "app.fullname" . }}-config
       {{- end }}
       {{- if .Values.persistence.enabled }}
-      - name: init-config
+      - name: init-data
         configMap:
-          name: {{ include "app.fullname" . }}-init-config
+          name: {{ include "app.fullname" . }}-init-data
       - name: data
         persistentVolumeClaim:
           claimName: {{ include "app.fullname" . }}-data

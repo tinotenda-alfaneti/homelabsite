@@ -2,9 +2,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "app.fullname" . }}-init-config
+  name: {{ include "app.fullname" . }}-init-data
   labels:
     {{- include "app.labels" . | nindent 4 }}
 data:
-  config.yaml: {{ .Values.initialConfig | toYaml | nindent 4 }}
+  posts.yaml: {{ .Values.initialData.posts | toYaml | nindent 4 }}
+  services.yaml: {{ .Values.initialData.services | toYaml | nindent 4 }}
 {{- end }}
