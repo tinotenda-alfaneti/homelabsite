@@ -1,14 +1,56 @@
 services:
+    - name: Homelab Site
+      description: Personal homelab dashboard and documentation site
+      url: https://atarnet.org
+      tech: Go + HTML/CSS/JS
+      status: public
+      icon: ""
     - name: AvidLearner
       description: Interactive Go learning platform with AI-powered lesson generation and typing challenges
       url: https://avidlearner.atarnet.org
       tech: Go + React + Vite
       status: public
       icon: ""
+    - name: Chess Game
+      description: Web-based chess game with VNC support for interactive gameplay
+      url: https://chess.atarnet.org
+      tech: Python + VNC
+      status: public
+      icon: ""
     - name: Jenkins
       description: CI/CD automation server orchestrating builds, tests, and deployments across the homelab
       url: https://jenkins.atarnet.org
       tech: Java + Kubernetes
+      status: internal
+      icon: ""
+    - name: Ghost Blog
+      description: Modern publishing platform for content creators and writers
+      url: https://writer.atarnet.org
+      tech: Node.js + Ghost CMS
+      status: public
+      icon: ""
+    - name: Actual Budget
+      description: Privacy-focused personal finance management and budgeting tool
+      url: https://budget.atarnet.org
+      tech: Node.js + PostgreSQL
+      status: internal
+      icon: ""
+    - name: HabitTrove
+      description: Habit tracking and personal development application
+      url: https://habits.atarnet.org
+      tech: Node.js + PostgreSQL
+      status: internal
+      icon: ""
+    - name: Mealie
+      description: Self-hosted recipe manager and meal planning application
+      url: https://recipes.atarnet.org
+      tech: Python + PostgreSQL
+      status: internal
+      icon: ""
+    - name: Planka
+      description: Self-hosted kanban board for project and task management
+      url: https://planka.atarnet.org
+      tech: Node.js + PostgreSQL
       status: internal
       icon: ""
     - name: Navidrome
@@ -23,28 +65,22 @@ services:
       tech: Node.js + Vue
       status: public
       icon: ""
-    - name: Poetry Blog
-      description: Publishing platform for content and articles
-      url: https://writer.atarnet.org
+    - name: Kubernetes Dashboard
+      description: Web-based UI for managing Kubernetes clusters and resources
+      url: https://k8s.atarnet.org
+      tech: Go + Angular
+      status: internal
+      icon: ""
+    - name: Velero
+      description: Kubernetes backup and disaster recovery solution with MinIO storage
+      url: https://velero.atarnet.org
+      tech: Go + MinIO
+      status: internal
+      icon: ""
+    - name: Velero UI
+      description: Web interface for managing Velero backups and restores
+      url: https://velero-ui.atarnet.org
       tech: Node.js
-      status: public
-      icon: ""
-    - name: Ebook Reader
-      description: Self-hosted ebook library and reader with progress tracking
-      url: https://ebooks.atarnet.org
-      tech: Go + Vanilla JS
-      status: internal
-      icon: ""
-    - name: Prometheus
-      description: Metrics collection and monitoring for all homelab services and infrastructure
-      url: https://prometheus.atarnet.org
-      tech: Go + PromQL
-      status: internal
-      icon: ""
-    - name: Grafana
-      description: Visualization and analytics platform for infrastructure metrics and logs
-      url: https://grafana.atarnet.org
-      tech: Go + TypeScript
       status: internal
       icon: ""
     - name: Rebalancer Operator
