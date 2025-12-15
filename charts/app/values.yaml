@@ -36,6 +36,7 @@ resources:
 # Environment variables (for non-sensitive config)
 env:
   PORT: "8082"
+  CONFIG_PATH: "/app/config/config.yaml"
 
 # Environment variables from secrets (for sensitive data like passwords)
 # Create the secret first: kubectl create secret generic homelab-admin-creds \
@@ -48,7 +49,7 @@ envFrom:
 # Persistent storage for dynamic config (posts, services)
 persistence:
   enabled: true
-  storageClass: ""  # Use default storage class
+  storageClass: "microk8s-hostpath"  # MicroK8s default storage class
   accessMode: ReadWriteOnce
   size: 1Gi
   mountPath: /app/config

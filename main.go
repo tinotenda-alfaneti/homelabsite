@@ -123,7 +123,8 @@ func main() {
 }
 
 func (app *App) loadConfig() error {
-	data, err := os.ReadFile("config/config.yaml")
+	configPath := getEnv("CONFIG_PATH", "config/config.yaml")
+	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}
@@ -486,7 +487,8 @@ func (app *App) saveConfig() error {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
 
-	return os.WriteFile("config/config.yaml", data, 0644)
+	configPath := getEnv("CONFIG_PATH", "config/config.yaml")
+	return os.WriteFile(configPath, data, 0644)
 }
 
 func (app *App) render(w http.ResponseWriter, tmpl string, data map[string]interface{}) {
