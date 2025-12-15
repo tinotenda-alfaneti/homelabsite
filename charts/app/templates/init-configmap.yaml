@@ -6,6 +6,5 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
 data:
-  config.yaml: |
-{{ .Files.Get "../../config/config.yaml" | indent 4 }}
+  config.yaml: {{ .Values.initialConfig | toYaml | nindent 4 }}
 {{- end }}

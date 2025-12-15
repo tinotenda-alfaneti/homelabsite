@@ -158,6 +158,7 @@ pipeline {
               --create-namespace \
               --set image.repository=${IMAGE_NAME} \
               --set image.tag=${TAG} \
+              --set-file initialConfig=$WORKSPACE/config/config.yaml \
               --wait --timeout 5m
 
             echo "Deployment complete!"
