@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"sort"
 
 	"github.com/gorilla/mux"
 	"github.com/tinotenda-alfaneti/homelabsite/models"
@@ -12,11 +11,18 @@ import (
 
 func (app *App) HandleAPIServices(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
-	services := app.Config.Services
+	
+	// Get services from database
+	services, err := app.DB.GetAllServices()
+	if err != nil {
+		log.Printf("Error getting services from database: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	if status != "" {
 		filtered := []models.Service{}
-		for _, s := range app.Config.Services {
+		for _, s := range services {
 			if s.Status == status {
 				filtered = append(filtered, s)
 			}
@@ -43,23 +49,35 @@ func (app *App) HandleAPIServices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) HandleAPIPosts(w http.ResponseWriter, r *http.Request) {
+	posts, err := app.DB.GetAllPosts()
+	if err != nil {
+		log.Printf("Error getting posts from database: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(app.Config.Posts)
+	json.NewEncoder(w).Encode(posts)
 }
 
 func (app *App) HandleAPIGetPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	for _, post := range app.Config.Posts {
-		if post.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(post)
-			return
-		}
+	post, err := app.DB.GetPostByID(id)
+	if err != nil {
+		log.Printf("Error getting post from database: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
-	http.NotFound(w, r)
+	if post == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(post)
 }
 
 func (app *App) HandleAPISavePost(w http.ResponseWriter, r *http.Request) {
@@ -69,28 +87,9 @@ func (app *App) HandleAPISavePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Find and update existing post or add new one
-	found := false
-	for i := range app.Config.Posts {
-		if app.Config.Posts[i].ID == post.ID {
-			app.Config.Posts[i] = post
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		app.Config.Posts = append(app.Config.Posts, post)
-	}
-
-	// Sort posts by date descending
-	sort.Slice(app.Config.Posts, func(i, j int) bool {
-		return app.Config.Posts[i].Date.After(app.Config.Posts[j].Date)
-	})
-
-	// Save to config file
-	if err := app.SaveConfig(); err != nil {
-		log.Printf("Error saving config: %v", err)
+	// Save to database
+	if err := app.DB.SavePost(&post); err != nil {
+		log.Printf("Error saving post: %v", err)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": false,
@@ -110,29 +109,19 @@ func (app *App) HandleAPIDeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// Find and remove post
-	for i, post := range app.Config.Posts {
-		if post.ID == id {
-			app.Config.Posts = append(app.Config.Posts[:i], app.Config.Posts[i+1:]...)
-
-			// Save to config file
-			if err := app.SaveConfig(); err != nil {
-				log.Printf("Error saving config: %v", err)
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(map[string]interface{}{
-					"success": false,
-					"error":   err.Error(),
-				})
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"success": true,
-			})
-			return
-		}
+	// Delete from database
+	if err := app.DB.DeletePost(id); err != nil {
+		log.Printf("Error deleting post: %v", err)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	http.NotFound(w, r)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+	})
 }

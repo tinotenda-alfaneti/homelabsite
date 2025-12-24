@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tinotenda-alfaneti/homelabsite/config"
+	"github.com/tinotenda-alfaneti/homelabsite/db"
 	"github.com/tinotenda-alfaneti/homelabsite/middleware"
 	"github.com/tinotenda-alfaneti/homelabsite/models"
 )
@@ -15,6 +15,7 @@ type App struct {
 	Templates  *template.Template
 	Auth       *middleware.AuthMiddleware
 	ConfigPath string
+	DB         *db.DB
 }
 
 func (app *App) Render(w http.ResponseWriter, tmpl string, data map[string]interface{}) {
@@ -23,10 +24,6 @@ func (app *App) Render(w http.ResponseWriter, tmpl string, data map[string]inter
 		log.Printf("Error rendering template %s: %v", tmpl, err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
-}
-
-func (app *App) SaveConfig() error {
-	return config.SaveData(app.ConfigPath, app.Config)
 }
 
 func Min(a, b int) int {

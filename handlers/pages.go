@@ -8,29 +8,34 @@ import (
 )
 
 func (app *App) HandleHome(w http.ResponseWriter, r *http.Request) {
+	services, _ := app.DB.GetAllServices()
+	posts, _ := app.DB.GetAllPosts()
+	
 	data := map[string]interface{}{
 		"Title":    "Atarnet Homelab - K8s Infrastructure at Home",
-		"Services": app.Config.Services[:Min(4, len(app.Config.Services))],
-		"Posts":    app.Config.Posts[:Min(3, len(app.Config.Posts))],
+		"Services": services[:Min(4, len(services))],
+		"Posts":    posts[:Min(3, len(posts))],
 	}
 	app.Render(w, "home.html", data)
 }
 
 func (app *App) HandleServices(w http.ResponseWriter, r *http.Request) {
+	services, _ := app.DB.GetAllServices()
+	
 	data := map[string]interface{}{
 		"Title":    "Services - Atarnet Homelab",
-		"Services": app.Config.Services,
+		"Services": services,
 	}
 	app.Render(w, "services.html", data)
 }
 
 func (app *App) HandleBlog(w http.ResponseWriter, r *http.Request) {
 	category := r.URL.Query().Get("category")
-	posts := app.Config.Posts
+	posts, _ := app.DB.GetAllPosts()
 
 	if category != "" {
 		filtered := []models.Post{}
-		for _, p := range app.Config.Posts {
+		for _, p := range posts {
 			if p.Category == category {
 				filtered = append(filtered, p)
 			}
@@ -50,15 +55,8 @@ func (app *App) HandleBlogPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var post *models.Post
-	for i := range app.Config.Posts {
-		if app.Config.Posts[i].ID == id {
-			post = &app.Config.Posts[i]
-			break
-		}
-	}
-
-	if post == nil {
+	post, err := app.DB.GetPostByID(id)
+	if err != nil || post == nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -78,9 +76,11 @@ func (app *App) HandleAbout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) HandleAdmin(w http.ResponseWriter, r *http.Request) {
+	posts, _ := app.DB.GetAllPosts()
+	
 	data := map[string]interface{}{
 		"Title": "Blog Admin - Atarnet Homelab",
-		"Posts": app.Config.Posts,
+		"Posts": posts,
 	}
 	app.Render(w, "admin.html", data)
 }

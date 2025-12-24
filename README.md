@@ -20,20 +20,33 @@ This site serves as:
 Built with simplicity and performance in mind:
 
 - **Backend**: Go with embedded templates and static files (embed.FS)
+- **Database**: SQLite for persistent, ACID-compliant storage
 - **Frontend**: HTMX for dynamic interactions without heavy JavaScript frameworks
 - **Styling**: Custom CSS with modern dark theme
-- **Content**: YAML-based configuration for easy updates
+- **Content Management**: Admin interface with real-time updates
 - **Deployment**: Kubernetes with Helm charts, following GitOps principles
 - **CI/CD**: Jenkins with Kaniko for containerized builds and Trivy for security scanning
 - **External Access**: Cloudflare Tunnels with Zero Trust authentication
+- **Security**: bcrypt password hashing, rate limiting, secure sessions
 
 ### Technology Choices
 
-- **Go**: Single binary deployment, minimal memory footprint (~20MB), fast startup
+- **Go**: Single binary deployment, minimal memory footprint (~30MB), fast startup
+- **SQLite**: Zero-configuration, ACID compliance, embedded database perfect for K8s
 - **HTMX**: Progressive enhancement, SEO-friendly, minimal JavaScript
 - **Embedded Files**: No runtime dependencies, simplified Docker images
 - **Kubernetes**: Orchestration matching enterprise patterns
-- **ConfigMaps**: Hot-reload content without rebuilding container images
+- **PersistentVolume**: Database persistence across pod restarts
+
+### Key Features
+
+✅ **Password Hashing**: bcrypt-based secure authentication  
+✅ **Rate Limiting**: Protection against brute force attacks (5 req/sec)  
+✅ **Database Storage**: SQLite with automatic YAML migration  
+✅ **RSS/Atom Feeds**: Subscribe to blog updates at `/rss` or `/feed`  
+✅ **Unit Tests**: Comprehensive test coverage for core components  
+✅ **Graceful Shutdown**: Clean termination handling for Kubernetes  
+✅ **Health Checks**: Kubernetes-ready liveness and readiness probes
 
 ## Running Locally
 
@@ -84,9 +97,35 @@ make docker-build
 # Run in Docker
 make docker-run
 
+# Run tests
+make test
+
 # Clean build artifacts
 make clean
 ```
+
+### Testing
+
+Run the test suite:
+
+```bash
+# Run all tests
+go test ./... -v
+
+# Run tests with coverage
+go test ./... -cover
+
+# Run specific package tests
+go test ./middleware -v
+go test ./db -v
+go test ./config -v
+```
+
+Test coverage includes:
+- Authentication and password hashing
+- Rate limiting middleware
+- Database operations (CRUD)
+- Configuration loading
 
 ## Deployment
 

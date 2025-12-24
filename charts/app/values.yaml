@@ -37,6 +37,7 @@ resources:
 env:
   PORT: "8082"
   CONFIG_PATH: "/srv/config/config.yaml"
+  DB_PATH: "/app/data/homelab.db"
 
 # Environment variables from secrets (for sensitive data like passwords)
 # Create the secret first: kubectl create secret generic homelab-admin-creds \

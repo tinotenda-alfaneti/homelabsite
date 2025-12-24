@@ -6,20 +6,28 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthMiddleware struct {
-	sessions  map[string]time.Time
-	sessionMu sync.RWMutex
-	adminUser string
-	adminPass string
+	sessions     map[string]time.Time
+	sessionMu    sync.RWMutex
+	adminUser    string
+	passwordHash string
 }
 
 func NewAuthMiddleware(adminUser, adminPass string) *AuthMiddleware {
+	// Hash the password on initialization
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(adminPass), bcrypt.DefaultCost)
+	if err != nil {
+		panic("Failed to hash admin password: " + err.Error())
+	}
+
 	am := &AuthMiddleware{
-		sessions:  make(map[string]time.Time),
-		adminUser: adminUser,
-		adminPass: adminPass,
+		sessions:     make(map[string]time.Time),
+		adminUser:    adminUser,
+		passwordHash: string(hashedPassword),
 	}
 	go am.cleanupSessions()
 	return am
@@ -52,7 +60,11 @@ func (am *AuthMiddleware) RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func (am *AuthMiddleware) ValidateCredentials(username, password string) bool {
-	return username == am.adminUser && password == am.adminPass
+	if username != am.adminUser {
+		return false
+	}
+	err := bcrypt.CompareHashAndPassword([]byte(am.passwordHash), []byte(password))
+	return err == nil
 }
 
 func (am *AuthMiddleware) CreateSession() (string, time.Time) {
