@@ -54,8 +54,18 @@ func (db *DB) Close() error {
 	return db.conn.Close()
 }
 
+// GetConn returns the underlying database connection
+func (db *DB) GetConn() *sql.DB {
+	return db.conn
+}
+
 // initSchema creates the database schema if it doesn't exist
 func (db *DB) initSchema() error {
+	// Enable foreign key constraints
+	if _, err := db.conn.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		return fmt.Errorf("enabling foreign keys: %w", err)
+	}
+
 	schema := `
 	CREATE TABLE IF NOT EXISTS posts (
 		id TEXT PRIMARY KEY,
@@ -87,8 +97,16 @@ func (db *DB) initSchema() error {
 	CREATE INDEX IF NOT EXISTS idx_services_status ON services(status);
 	`
 
-	_, err := db.conn.Exec(schema)
-	return err
+	if _, err := db.conn.Exec(schema); err != nil {
+		return err
+	}
+
+	// Create comments table
+	if err := CreateCommentsTable(db.conn); err != nil {
+		return fmt.Errorf("creating comments table: %w", err)
+	}
+
+	return nil
 }
 
 // GetAllPosts retrieves all posts from the database

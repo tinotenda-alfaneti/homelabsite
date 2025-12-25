@@ -2,9 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"time"
 
-	"github.com/tinotenda-alfaneti/homelab/models"
+	"github.com/tinotenda-alfaneti/homelabsite/models"
 )
 
 // CreateCommentsTable initializes the comments table in the database
@@ -79,7 +78,7 @@ func GetCommentsByPostID(database *sql.DB, postID string) ([]models.Comment, err
 	for rows.Next() {
 		var comment models.Comment
 		var parentID sql.NullInt64
-		
+
 		err := rows.Scan(
 			&comment.ID,
 			&comment.PostID,
@@ -122,7 +121,7 @@ func GetPendingComments(database *sql.DB) ([]models.Comment, error) {
 	for rows.Next() {
 		var comment models.Comment
 		var parentID sql.NullInt64
-		
+
 		err := rows.Scan(
 			&comment.ID,
 			&comment.PostID,

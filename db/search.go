@@ -63,9 +63,9 @@ func (db *DB) SearchPostsByTag(tag string) ([]models.Post, error) {
 
 	// Match tag exactly or as part of comma-separated list
 	patterns := []string{
-		tag,           // exact match
-		tag + ",%",    // at start
-		"%," + tag,    // at end
+		tag,               // exact match
+		tag + ",%",        // at start
+		"%," + tag,        // at end
 		"%," + tag + ",%", // in middle
 	}
 
@@ -87,7 +87,7 @@ func (db *DB) SearchPostsByTag(tag string) ([]models.Post, error) {
 			if tags != "" {
 				p.Tags = parseTagsFromString(tags)
 			}
-			
+
 			// Check if this tag actually exists in the parsed tags
 			hasTag := false
 			for _, t := range p.Tags {
@@ -96,7 +96,7 @@ func (db *DB) SearchPostsByTag(tag string) ([]models.Post, error) {
 					break
 				}
 			}
-			
+
 			if hasTag {
 				postsMap[p.ID] = p
 			}
@@ -128,7 +128,7 @@ func (db *DB) GetAllTags() ([]string, error) {
 		if err := rows.Scan(&tagsStr); err != nil {
 			return nil, err
 		}
-		
+
 		tags := parseTagsFromString(tagsStr)
 		for _, tag := range tags {
 			tagsMap[tag] = true

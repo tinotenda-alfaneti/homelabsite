@@ -137,13 +137,20 @@ func main() {
 	r.HandleFunc("/api/search", app.HandleSearch).Methods("GET")
 	r.HandleFunc("/api/tags", app.HandleAPITags).Methods("GET")
 
+	// Comment routes
+	r.HandleFunc("/api/posts/{id}/comments", handlers.HandleGetComments(database)).Methods("GET")
+	r.HandleFunc("/api/posts/{id}/comments", rateLimiter.RateLimit(handlers.HandlePostComment(database))).Methods("POST")
+	r.HandleFunc("/api/admin/comments/pending", auth.RequireAuth(handlers.HandleGetPendingComments(database))).Methods("GET")
+	r.HandleFunc("/api/admin/comments/{id}/approve", auth.RequireAuth(handlers.HandleApproveComment(database))).Methods("POST")
+	r.HandleFunc("/api/admin/comments/{id}", auth.RequireAuth(handlers.HandleDeleteComment(database))).Methods("DELETE")
+
 	// RSS Feed
 	r.HandleFunc("/rss", app.HandleRSS).Methods("GET")
 	r.HandleFunc("/feed", app.HandleRSS).Methods("GET")
 
 	// Start server with graceful shutdown
 	port := config.GetEnv("PORT", "8082")
-		srv := &http.Server{
+	srv := &http.Server{
 		Addr:         ":" + port,
 		Handler:      r,
 		ReadTimeout:  15 * time.Second,

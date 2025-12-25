@@ -46,6 +46,42 @@
         {{ markdown .Post.Content }}
     </div>
 
+    <!-- Comments Section -->
+    <section class="comments-section" id="comments">
+        <h2>Comments</h2>
+        
+        <div id="comments-container" 
+             hx-get="/api/posts/{{ .Post.ID }}/comments"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <p class="loading">Loading comments...</p>
+        </div>
+
+        <div class="comment-form">
+            <h3>Leave a Comment</h3>
+            <form hx-post="/api/posts/{{ .Post.ID }}/comments"
+                  hx-target="#comment-status"
+                  hx-swap="innerHTML"
+                  class="comment-form-fields">
+                <div class="form-group">
+                    <label for="author_name">Name</label>
+                    <input type="text" id="author_name" name="author_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="author_email">Email</label>
+                    <input type="email" id="author_email" name="author_email" required>
+                    <small>Not publicly displayed</small>
+                </div>
+                <div class="form-group">
+                    <label for="content">Comment</label>
+                    <textarea id="content" name="content" rows="5" maxlength="2000" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Submit Comment</button>
+                <div id="comment-status"></div>
+            </form>
+        </div>
+    </section>
+
     <footer class="post-footer">
         <a href="/blog" class="back-link">← Back to Blog</a>
     </footer>

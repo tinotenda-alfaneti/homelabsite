@@ -61,3 +61,20 @@ type Post struct {
 	Content  string    `yaml:"content" json:"content"`
 	Tags     []string  `yaml:"tags" json:"tags"`
 }
+
+type User struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+}
+
+type Comment struct {
+	ID          int       `json:"id"`
+	PostID      string    `json:"post_id"`
+	ParentID    *int      `json:"parent_id,omitempty"`
+	AuthorName  string    `json:"author_name"`
+	AuthorEmail string    `json:"author_email"`
+	Content     string    `json:"content"`
+	CreatedAt   time.Time `json:"created_at"`
+	Approved    bool      `json:"approved"`
+	Replies     []Comment `json:"replies,omitempty"`
+}
