@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Atarnet Homelab</h1>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/blog">Blog</a></li>
+                <li><a href="/search">Search</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="search-page">
+        <div class="search-container">
+            <h1>Search Blog Posts</h1>
+            
+            <form method="GET" action="/search" class="search-form">
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Search posts..." 
+                    value="{{ .Query }}"
+                    hx-get="/api/search"
+                    hx-trigger="keyup changed delay:500ms"
+                    hx-target="#search-results"
+                    hx-include="[name='q']"
+                />
+                <button type="submit">Search</button>
+            </form>
+
+            {{ if .AllTags }}
+            <div class="tags-filter">
+                <h3>Filter by Tag:</h3>
+                <div class="tag-list">
+                    {{ range .AllTags }}
+                    <a href="/search?tag={{ . }}" class="tag {{ if eq $.Tag . }}active{{ end }}">{{ . }}</a>
+                    {{ end }}
+                </div>
+            </div>
+            {{ end }}
+
+            <div id="search-results">
+                {{ if .Posts }}
+                <div class="search-results">
+                    <h2>
+                        {{ if eq .SearchType "tag" }}
+                        Posts tagged with "{{ .Tag }}"
+                        {{ else if eq .SearchType "query" }}
+                        Search results for "{{ .Query }}"
+                        {{ else }}
+                        All Posts
+                        {{ end }}
+                    </h2>
+                    
+                    <div class="posts-grid">
+                        {{ range .Posts }}
+                        <article class="post-card">
+                            <h3><a href="/blog/{{ .ID }}">{{ .Title }}</a></h3>
+                            <div class="post-meta">
+                                <span class="date">{{ .Date.Format "Jan 2, 2006" }}</span>
+                                <span class="category">{{ .Category }}</span>
+                            </div>
+                            <p>{{ .Summary }}</p>
+                            {{ if .Tags }}
+                            <div class="tags">
+                                {{ range .Tags }}
+                                <a href="/search?tag={{ . }}" class="tag">{{ . }}</a>
+                                {{ end }}
+                            </div>
+                            {{ end }}
+                        </article>
+                        {{ end }}
+                    </div>
+                </div>
+                {{ else }}
+                <div class="no-results">
+                    <p>No posts found.</p>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Atarnet Homelab. All rights reserved.</p>
+    </footer>
+
+    <script src="/static/js/theme.js"></script>
+</body>
+</html>

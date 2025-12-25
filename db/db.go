@@ -218,13 +218,6 @@ func (db *DB) SaveService(service *models.Service) error {
 func (db *DB) MigrateFromYAML(posts []models.Post, services []models.Service) error {
 	log.Printf("Migrating %d posts and %d services from YAML to database", len(posts), len(services))
 
-	// Start transaction
-	tx, err := db.conn.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
 	// Migrate posts
 	for _, post := range posts {
 		if post.Date.IsZero() {
@@ -240,10 +233,6 @@ func (db *DB) MigrateFromYAML(posts []models.Post, services []models.Service) er
 		if err := db.SaveService(&service); err != nil {
 			return fmt.Errorf("migrating service %s: %w", service.Name, err)
 		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
 	}
 
 	log.Printf("Migration completed successfully")

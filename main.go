@@ -118,6 +118,7 @@ func main() {
 	r.HandleFunc("/services", app.HandleServices).Methods("GET")
 	r.HandleFunc("/blog", app.HandleBlog).Methods("GET")
 	r.HandleFunc("/blog/{id}", app.HandleBlogPost).Methods("GET")
+	r.HandleFunc("/search", app.HandleSearchPage).Methods("GET")
 	r.HandleFunc("/about", app.HandleAbout).Methods("GET")
 	r.HandleFunc("/health", app.HandleHealth).Methods("GET")
 
@@ -133,6 +134,8 @@ func main() {
 	r.HandleFunc("/api/posts/{id}", app.HandleAPIGetPost).Methods("GET")
 	r.HandleFunc("/api/posts", auth.RequireAuth(app.HandleAPISavePost)).Methods("POST")
 	r.HandleFunc("/api/posts/{id}", auth.RequireAuth(app.HandleAPIDeletePost)).Methods("DELETE")
+	r.HandleFunc("/api/search", app.HandleSearch).Methods("GET")
+	r.HandleFunc("/api/tags", app.HandleAPITags).Methods("GET")
 
 	// RSS Feed
 	r.HandleFunc("/rss", app.HandleRSS).Methods("GET")
