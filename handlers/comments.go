@@ -128,7 +128,7 @@ func HandleApproveComment(database *db.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		commentIDStr := vars["id"]
-		
+
 		commentID, err := strconv.Atoi(commentIDStr)
 		if err != nil {
 			http.Error(w, "Invalid comment ID", http.StatusBadRequest)
@@ -153,7 +153,7 @@ func HandleDeleteComment(database *db.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		commentIDStr := vars["id"]
-		
+
 		commentID, err := strconv.Atoi(commentIDStr)
 		if err != nil {
 			http.Error(w, "Invalid comment ID", http.StatusBadRequest)
@@ -234,4 +234,3 @@ func renderComment(w http.ResponseWriter, comment models.Comment, isReply bool) 
 
 	fmt.Fprintf(w, `</div>`)
 }
-

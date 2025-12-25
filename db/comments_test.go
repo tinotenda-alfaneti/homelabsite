@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tinotenda-alfaneti/homelabsite/models"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/tinotenda-alfaneti/homelabsite/models"
 )
 
 func setupCommentsTestDB(t *testing.T) *sql.DB {
@@ -31,7 +31,7 @@ func setupCommentsTestDB(t *testing.T) *sql.DB {
 		content TEXT NOT NULL,
 		tags TEXT NOT NULL
 	);`
-	
+
 	if _, err := db.Exec(postsSchema); err != nil {
 		t.Fatalf("Failed to create posts table: %v", err)
 	}
