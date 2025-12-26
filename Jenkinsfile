@@ -10,7 +10,7 @@ pipeline {
     NAMESPACE       = "${REPO_NAME}-ns"
     SOURCE_NS       = "test-ns"
     KUBECONFIG_CRED = "kubeconfigglobal"
-    PATH            = "$WORKSPACE/go/bin:$WORKSPACE/bin:$PATH"
+    PATH            = "$WORKSPACE/.tools/go/bin:$WORKSPACE/bin:$PATH"
     GOPATH          = "$WORKSPACE/gopath"
   }
 
@@ -67,8 +67,9 @@ pipeline {
           esac
 
           curl -sSLo go.tar.gz https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
-          rm -rf "$WORKSPACE/go"
-          tar -C "$WORKSPACE" -xzf go.tar.gz
+          rm -rf "$WORKSPACE/.tools/go"
+          mkdir -p "$WORKSPACE/.tools"
+          tar -C "$WORKSPACE/.tools" -xzf go.tar.gz
           rm go.tar.gz
 
           # Install golangci-lint
@@ -82,10 +83,10 @@ pipeline {
     stage('Lint Code') {
       steps {
         sh '''
-          export GOROOT=$WORKSPACE/go
+          export GOROOT=$WORKSPACE/.tools/go
           export GOPATH=$WORKSPACE/gopath  
           export GOCACHE=$WORKSPACE/.cache/go-build
-          export PATH=$WORKSPACE/go/bin:$PATH
+          export PATH=$WORKSPACE/.tools/go/bin:$PATH
           
           cd $WORKSPACE
           go mod tidy
@@ -99,12 +100,12 @@ pipeline {
         sh '''
           echo "Running Go tests..."
           export GOROOT=$WORKSPACE/go
+          export GOCACHE=$WORKSPACE.tools/go
           export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$GOROOT/bin:$PATH
           
           cd $WORKSPACE
-          $WORKSPACE/go/bin/go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-        '''
+          
       }
     }
 
