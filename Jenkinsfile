@@ -99,8 +99,13 @@ pipeline {
           # Download dependencies
           $WORKSPACE/go/bin/go mod download
           
-          # Run linter (it will discover packages itself)
-          $WORKSPACE/bin/golangci-lint run --out-format colored-line-number
+          # Debug: verify we can see Go files and build
+          pwd
+          ls -la *.go | head -10
+          $WORKSPACE/go/bin/go build -v .
+          
+          # Run linter with explicit package specification
+          $WORKSPACE/bin/golangci-lint run --out-format colored-line-number ./...
         '''
       }
     }
