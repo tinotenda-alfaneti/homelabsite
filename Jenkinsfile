@@ -10,7 +10,7 @@ pipeline {
     NAMESPACE       = "${REPO_NAME}-ns"
     SOURCE_NS       = "test-ns"
     KUBECONFIG_CRED = "kubeconfigglobal"
-    PATH            = "$WORKSPACE/.tools/go/bin:$WORKSPACE/bin:$PATH"
+    PATH            = "$WORKSPACE/go/bin:$WORKSPACE/bin:$PATH"
     GOPATH          = "$WORKSPACE/gopath"
   }
 
@@ -48,7 +48,15 @@ pipeline {
           mv linux-${KARCH}/helm $WORKSPACE/bin/helm
           chmod +x $WORKSPACE/bin/helm
           rm -rf linux-${KARCH} helm-${HELM_VER}-linux-${KARCH}.tar.gz
+        '''
+      }
+    }
 
+    stage('Install Go') {
+      steps {
+        echo 'Installing Go toolchain...'
+        sh '''
+          GO_VERSION=1.22.0
           ARCH=$(uname -m)
           case "$ARCH" in
             x86_64)  GO_ARCH=amd64 ;;
@@ -59,9 +67,9 @@ pipeline {
           esac
 
           curl -sSLo go.tar.gz https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
-          rm -rf $WORKSPACE/.tools/go
-          mkdir -p $WORKSPACE/.tools
-          tar -C $WORKSPACE/.tools -xzf go.tar.gz
+          rm -rf "$WORKSPACE/.tools/go"
+          mkdir -p "$WORKSPACE/.tools"
+          tar -C "$WORKSPACE/.tools" -xzf go.tar.gz
           rm go.tar.gz
 
           # Install golangci-lint
@@ -72,39 +80,17 @@ pipeline {
       }
     }
 
-    stage('Lint Code') {
-      steps {
-        sh '''
-          export GOROOT=$WORKSPACE/.tools/go
-          export GOPATH=$WORKSPACE/gopath  
-          export GOCACHE=$WORKSPACE/.cache/go-build
-          export PATH=$WORKSPACE/.tools/go/bin:$PATH
-
-          cd $WORKSPACE
-          go mod tidy
-          if ls *.go 1> /dev/null 2>&1 || find . -type f -name '*.go' | grep -q .; then
-            $WORKSPACE/bin/golangci-lint run ./...
-          else
-            echo "No Go files to lint. Skipping golangci-lint."
-          fi
-        '''
-      }
-    }
-
     stage('Run Tests') {
       steps {
         sh '''
           echo "Running Go tests..."
-          export GOROOT=$WORKSPACE/.tools/go
-          export GOCACHE=$WORKSPACE/.tools/go
+          export GOROOT=$WORKSPACE/go
           export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$GOROOT/bin:$PATH
           
-          cd $WORKSPACE 
-          go mod tidy
-          go test -v ./...
+          cd $WORKSPACE
+          $WORKSPACE/go/bin/go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         '''
-          
       }
     }
 
