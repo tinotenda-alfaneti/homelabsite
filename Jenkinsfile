@@ -83,11 +83,12 @@ pipeline {
       steps {
         sh '''
           export GOROOT=$WORKSPACE/go
+          export GOPATH=$WORKSPACE/gopath  
           export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$WORKSPACE/go/bin:$PATH
-          export GO111MODULE=on
           
           cd $WORKSPACE
+          go mod tidy
           $WORKSPACE/bin/golangci-lint run ./...
         '''
       }
