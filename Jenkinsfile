@@ -48,15 +48,7 @@ pipeline {
           mv linux-${KARCH}/helm $WORKSPACE/bin/helm
           chmod +x $WORKSPACE/bin/helm
           rm -rf linux-${KARCH} helm-${HELM_VER}-linux-${KARCH}.tar.gz
-        '''
-      }
-    }
 
-    stage('Install Go') {
-      steps {
-        echo 'Installing Go toolchain...'
-        sh '''
-          GO_VERSION=1.22.0
           ARCH=$(uname -m)
           case "$ARCH" in
             x86_64)  GO_ARCH=amd64 ;;
@@ -87,10 +79,14 @@ pipeline {
           export GOPATH=$WORKSPACE/gopath  
           export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$WORKSPACE/.tools/go/bin:$PATH
-          
+
           cd $WORKSPACE
           go mod tidy
-          $WORKSPACE/bin/golangci-lint run ./...
+          if ls *.go 1> /dev/null 2>&1 || find . -type f -name '*.go' | grep -q .; then
+            $WORKSPACE/bin/golangci-lint run ./...
+          else
+            echo "No Go files to lint. Skipping golangci-lint."
+          fi
         '''
       }
     }
