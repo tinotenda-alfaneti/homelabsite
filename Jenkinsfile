@@ -67,9 +67,9 @@ pipeline {
           esac
 
           curl -sSLo go.tar.gz https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
-          rm -rf "$WORKSPACE/.tools/go"
-          mkdir -p "$WORKSPACE/.tools"
-          tar -C "$WORKSPACE/.tools" -xzf go.tar.gz
+          rm -rf $WORKSPACE/.tools/go
+          mkdir -p $WORKSPACE/.tools
+          tar -C $WORKSPACE/.tools -xzf go.tar.gz
           rm go.tar.gz
 
           # Install golangci-lint
