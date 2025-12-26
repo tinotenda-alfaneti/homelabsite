@@ -84,11 +84,18 @@ pipeline {
         sh '''
           echo "Running golangci-lint..."
           export GOROOT=$WORKSPACE/go
+          export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$GOROOT/bin:$PATH
+          
+          # Verify we're in the right place
+          echo "Current directory: $(pwd)"
+          echo "Go files found: $(find . -name "*.go" | wc -l)"
           
           # Download dependencies first
           $WORKSPACE/go/bin/go mod download
           
+          # Run linter from project root
+          cd $WORKSPACE
           $WORKSPACE/bin/golangci-lint run --out-format colored-line-number
         '''
       }
@@ -99,8 +106,10 @@ pipeline {
         sh '''
           echo "Running Go tests..."
           export GOROOT=$WORKSPACE/go
+          export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$GOROOT/bin:$PATH
           
+          cd $WORKSPACE
           $WORKSPACE/go/bin/go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         '''
       }
