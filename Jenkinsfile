@@ -99,12 +99,15 @@ pipeline {
       steps {
         sh '''
           echo "Running Go tests..."
-          export GOROOT=$WORKSPACE/go
-          export GOCACHE=$WORKSPACE.tools/go
+          export GOROOT=$WORKSPACE/.tools/go
+          export GOCACHE=$WORKSPACE/.tools/go
           export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$GOROOT/bin:$PATH
           
-          cd $WORKSPACE
+          cd $WORKSPACE 
+          go mod tidy
+          go test -v ./...
+        '''
           
       }
     }
