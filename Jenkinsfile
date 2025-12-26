@@ -83,6 +83,12 @@ pipeline {
       steps {
         sh '''
           echo "Running golangci-lint..."
+          export GOROOT=$WORKSPACE/go
+          export PATH=$GOROOT/bin:$PATH
+          
+          # Download dependencies first
+          $WORKSPACE/go/bin/go mod download
+          
           $WORKSPACE/bin/golangci-lint run --out-format colored-line-number
         '''
       }
@@ -92,6 +98,9 @@ pipeline {
       steps {
         sh '''
           echo "Running Go tests..."
+          export GOROOT=$WORKSPACE/go
+          export PATH=$GOROOT/bin:$PATH
+          
           $WORKSPACE/go/bin/go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         '''
       }
