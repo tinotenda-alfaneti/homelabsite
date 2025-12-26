@@ -82,30 +82,13 @@ pipeline {
     stage('Lint Code') {
       steps {
         sh '''
-          echo "Running golangci-lint..."
           export GOROOT=$WORKSPACE/go
           export GOCACHE=$WORKSPACE/.cache/go-build
-          export PATH=$GOROOT/bin:$PATH
+          export PATH=$WORKSPACE/go/bin:$PATH
+          export GO111MODULE=on
           
-          # Debug: check module info
-          echo "Checking go.mod..."
-          ls -la go.mod
-          cat go.mod | head -5
-          
-          echo "Checking go environment..."
-          $WORKSPACE/go/bin/go env GOMOD
-          $WORKSPACE/go/bin/go env GOROOT
-          
-          # Download dependencies
-          $WORKSPACE/go/bin/go mod download
-          
-          # Debug: verify we can see Go files and build
-          pwd
-          ls -la *.go | head -10
-          $WORKSPACE/go/bin/go build -v .
-          
-          # Run linter with explicit package specification
-          $WORKSPACE/bin/golangci-lint run --out-format colored-line-number ./...
+          cd $WORKSPACE
+          $WORKSPACE/bin/golangci-lint run ./...
         '''
       }
     }
