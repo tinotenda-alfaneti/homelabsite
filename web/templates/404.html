@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="/">Atarnet Homelab</a></h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {{if .Breadcrumbs}}
+        <nav class="breadcrumbs" aria-label="breadcrumb">
+            {{range $index, $crumb := .Breadcrumbs}}
+                {{if $crumb.URL}}
+                    <a href="{{$crumb.URL}}">{{$crumb.Name}}</a>
+                {{else}}
+                    <span>{{$crumb.Name}}</span>
+                {{end}}
+                {{if ne $index (len $.Breadcrumbs | add -1)}}
+                    <span class="separator">/</span>
+                {{end}}
+            {{end}}
+        </nav>
+        {{end}}
+
+        <div class="error-page">
+            <div class="error-code">404</div>
+            <h1>Page Not Found</h1>
+            <p class="error-message">
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">Go Home</a>
+                <a href="/blog" class="btn btn-secondary">View Blog</a>
+                <a href="/services" class="btn btn-secondary">View Services</a>
+            </div>
+
+            <div class="error-suggestions">
+                <h3>Here are some helpful links:</h3>
+                <ul>
+                    <li><a href="/">Home</a> - Return to the homepage</li>
+                    <li><a href="/blog">Blog</a> - Read latest posts</li>
+                    <li><a href="/services">Services</a> - Explore homelab services</li>
+                    <li><a href="/about">About</a> - Learn more about this site</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Atarnet Homelab. Built with Go, HTMX, and ❤️</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/theme.js"></script>
+</body>
+</html>

@@ -56,19 +56,19 @@ func TestGetConfigPath(t *testing.T) {
 	}()
 
 	tests := []struct {
-		name         string
+		name          string
 		configPathEnv string
-		expected     string
+		expected      string
 	}{
 		{
-			name:         "CONFIG_PATH environment variable set",
+			name:          "CONFIG_PATH environment variable set",
 			configPathEnv: "/custom/config/config.yaml",
-			expected:     "/custom/config/config.yaml",
+			expected:      "/custom/config/config.yaml",
 		},
 		{
-			name:         "CONFIG_PATH not set, default path",
+			name:          "CONFIG_PATH not set, default path",
 			configPathEnv: "",
-			expected:     "config/config.yaml", // Default for local
+			expected:      "config/config.yaml", // Default for local
 		},
 	}
 

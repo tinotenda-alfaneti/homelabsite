@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/tinotenda-alfaneti/homelabsite/cache"
 	"github.com/tinotenda-alfaneti/homelabsite/db"
 	"github.com/tinotenda-alfaneti/homelabsite/middleware"
 	"github.com/tinotenda-alfaneti/homelabsite/models"
@@ -16,6 +17,7 @@ type App struct {
 	Auth       *middleware.AuthMiddleware
 	ConfigPath string
 	DB         *db.DB
+	Cache      *cache.Cache
 }
 
 func (app *App) Render(w http.ResponseWriter, tmpl string, data map[string]interface{}) {

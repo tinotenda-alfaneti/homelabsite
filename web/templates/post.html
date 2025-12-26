@@ -26,11 +26,27 @@
     </header>
 
     <main class="container">
+        {{if .Breadcrumbs}}
+        <nav class="breadcrumbs" aria-label="breadcrumb">
+            {{range $index, $crumb := .Breadcrumbs}}
+                {{if $crumb.URL}}
+                    <a href="{{$crumb.URL}}">{{$crumb.Name}}</a>
+                {{else}}
+                    <span>{{$crumb.Name}}</span>
+                {{end}}
+                {{if ne (add $index 1) (len $.Breadcrumbs)}}
+                    <span class="separator">/</span>
+                {{end}}
+            {{end}}
+        </nav>
+        {{end}}
+
 <article class="post-full">
     <header class="post-header">
         <div class="post-meta">
             <span class="post-category">{{ .Post.Category }}</span>
             <span class="post-date">{{ .Post.Date.Format "January 2, 2006" }}</span>
+            {{ if .Post.Views }}<span class="post-views">{{ .Post.Views }} views</span>{{ end }}
         </div>
         <h1>{{ .Post.Title }}</h1>
         {{ if .Post.Tags }}

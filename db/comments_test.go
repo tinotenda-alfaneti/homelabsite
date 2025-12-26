@@ -90,7 +90,9 @@ func TestGetCommentsByPostID(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    true,
 	}
-	SaveComment(db, approvedComment)
+	if err := SaveComment(db, approvedComment); err != nil {
+		t.Fatalf("Failed to save approved comment: %v", err)
+	}
 
 	// Save unapproved comment
 	unapprovedComment := &models.Comment{
@@ -101,7 +103,9 @@ func TestGetCommentsByPostID(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    false,
 	}
-	SaveComment(db, unapprovedComment)
+	if err := SaveComment(db, unapprovedComment); err != nil {
+		t.Fatalf("Failed to save unapproved comment: %v", err)
+	}
 
 	// Get comments (should only return approved)
 	comments, err := GetCommentsByPostID(db, "test-post")
@@ -132,7 +136,9 @@ func TestGetPendingComments(t *testing.T) {
 			CreatedAt:   time.Now(),
 			Approved:    false,
 		}
-		SaveComment(db, comment)
+		if err := SaveComment(db, comment); err != nil {
+			t.Fatalf("Failed to save comment %d: %v", i, err)
+		}
 	}
 
 	// Save approved comment
@@ -144,7 +150,9 @@ func TestGetPendingComments(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    true,
 	}
-	SaveComment(db, approved)
+	if err := SaveComment(db, approved); err != nil {
+		t.Fatalf("Failed to save approved comment: %v", err)
+	}
 
 	pending, err := GetPendingComments(db)
 	if err != nil {
@@ -168,7 +176,9 @@ func TestApproveComment(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    false,
 	}
-	SaveComment(db, comment)
+	if err := SaveComment(db, comment); err != nil {
+		t.Fatalf("Failed to save comment: %v", err)
+	}
 
 	// Approve the comment
 	err := ApproveComment(db, comment.ID)
@@ -195,7 +205,9 @@ func TestDeleteComment(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    true,
 	}
-	SaveComment(db, comment)
+	if err := SaveComment(db, comment); err != nil {
+		t.Fatalf("Failed to save comment: %v", err)
+	}
 
 	// Delete the comment
 	err := DeleteComment(db, comment.ID)
@@ -223,7 +235,9 @@ func TestNestedComments(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    true,
 	}
-	SaveComment(db, parent)
+	if err := SaveComment(db, parent); err != nil {
+		t.Fatalf("Failed to save parent comment: %v", err)
+	}
 
 	// Reply to parent
 	reply := &models.Comment{
@@ -235,7 +249,9 @@ func TestNestedComments(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    true,
 	}
-	SaveComment(db, reply)
+	if err := SaveComment(db, reply); err != nil {
+		t.Fatalf("Failed to save reply comment: %v", err)
+	}
 
 	// Get all comments
 	comments, err := GetCommentsByPostID(db, "test-post")
@@ -281,7 +297,9 @@ func TestGetCommentCount(t *testing.T) {
 			CreatedAt:   time.Now(),
 			Approved:    true,
 		}
-		SaveComment(db, comment)
+		if err := SaveComment(db, comment); err != nil {
+			t.Fatalf("Failed to save comment %d: %v", i, err)
+		}
 	}
 
 	// Add 2 pending comments
@@ -294,7 +312,9 @@ func TestGetCommentCount(t *testing.T) {
 			CreatedAt:   time.Now(),
 			Approved:    false,
 		}
-		SaveComment(db, comment)
+		if err := SaveComment(db, comment); err != nil {
+			t.Fatalf("Failed to save pending comment %d: %v", i, err)
+		}
 	}
 
 	count, err := GetCommentCount(db, "test-post")
@@ -320,7 +340,9 @@ func TestCascadeDeleteComments(t *testing.T) {
 		CreatedAt:   time.Now(),
 		Approved:    true,
 	}
-	SaveComment(db, comment)
+	if err := SaveComment(db, comment); err != nil {
+		t.Fatalf("Failed to save comment: %v", err)
+	}
 
 	// Delete the post (should cascade delete comments)
 	_, err := db.Exec("DELETE FROM posts WHERE id = ?", "test-post")

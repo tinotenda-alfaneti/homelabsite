@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	// Import SQLite driver for database/sql registration
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/tinotenda-alfaneti/homelabsite/models"
 )
@@ -75,12 +76,14 @@ func (db *DB) initSchema() error {
 		summary TEXT NOT NULL,
 		content TEXT NOT NULL,
 		tags TEXT NOT NULL,
+		views INTEGER DEFAULT 0,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_posts_date ON posts(date DESC);
 	CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
+	CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views DESC);
 
 	CREATE TABLE IF NOT EXISTS services (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,7 +114,7 @@ func (db *DB) initSchema() error {
 
 // GetAllPosts retrieves all posts from the database
 func (db *DB) GetAllPosts() ([]models.Post, error) {
-	query := `SELECT id, title, date, category, summary, content, tags FROM posts ORDER BY date DESC`
+	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0) FROM posts ORDER BY date DESC`
 	rows, err := db.conn.Query(query)
 	if err != nil {
 		return nil, err
@@ -122,7 +125,7 @@ func (db *DB) GetAllPosts() ([]models.Post, error) {
 	for rows.Next() {
 		var p models.Post
 		var tags string
-		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags); err != nil {
+		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views); err != nil {
 			return nil, err
 		}
 		// Parse tags from comma-separated string
@@ -137,12 +140,12 @@ func (db *DB) GetAllPosts() ([]models.Post, error) {
 
 // GetPostByID retrieves a single post by ID
 func (db *DB) GetPostByID(id string) (*models.Post, error) {
-	query := `SELECT id, title, date, category, summary, content, tags FROM posts WHERE id = ?`
+	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0) FROM posts WHERE id = ?`
 	row := db.conn.QueryRow(query, id)
 
 	var p models.Post
 	var tags string
-	if err := row.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags); err != nil {
+	if err := row.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -161,8 +164,8 @@ func (db *DB) SavePost(post *models.Post) error {
 	tags := joinTags(post.Tags)
 
 	query := `
-	INSERT INTO posts (id, title, date, category, summary, content, tags, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+	INSERT INTO posts (id, title, date, category, summary, content, tags, views, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 	ON CONFLICT(id) DO UPDATE SET
 		title = excluded.title,
 		date = excluded.date,
@@ -173,7 +176,7 @@ func (db *DB) SavePost(post *models.Post) error {
 		updated_at = CURRENT_TIMESTAMP
 	`
 
-	_, err := db.conn.Exec(query, post.ID, post.Title, post.Date, post.Category, post.Summary, post.Content, tags)
+	_, err := db.conn.Exec(query, post.ID, post.Title, post.Date, post.Category, post.Summary, post.Content, tags, post.Views)
 	return err
 }
 
@@ -293,4 +296,39 @@ func joinTags(tags []string) string {
 		result += tag
 	}
 	return result
+}
+
+// IncrementPostViews increments the view count for a post
+func (db *DB) IncrementPostViews(postID string) error {
+	query := `UPDATE posts SET views = views + 1 WHERE id = ?`
+	_, err := db.conn.Exec(query, postID)
+	return err
+}
+
+// GetPopularPosts retrieves posts ordered by view count
+func (db *DB) GetPopularPosts(limit int) ([]models.Post, error) {
+	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0) 
+	          FROM posts 
+	          ORDER BY views DESC, date DESC 
+	          LIMIT ?`
+	rows, err := db.conn.Query(query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []models.Post
+	for rows.Next() {
+		var p models.Post
+		var tags string
+		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views); err != nil {
+			return nil, err
+		}
+		if tags != "" {
+			p.Tags = parseTagsFromString(tags)
+		}
+		posts = append(posts, p)
+	}
+
+	return posts, rows.Err()
 }

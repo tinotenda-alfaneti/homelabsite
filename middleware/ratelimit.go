@@ -25,10 +25,10 @@ func NewRateLimiter(r rate.Limit, b int) *RateLimiter {
 		r:        r,
 		b:        b,
 	}
-	
+
 	// Cleanup old limiters every 5 minutes
 	go rl.cleanupLimiters()
-	
+
 	return rl
 }
 

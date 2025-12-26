@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (app *App) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
+func (app *App) HandleLoginPage(w http.ResponseWriter, _ *http.Request) {
 	data := map[string]interface{}{
 		"Title": "Admin Login - Atarnet Homelab",
 		"Error": nil,

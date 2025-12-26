@@ -26,6 +26,21 @@
     </header>
 
     <main class="container">
+        {{if .Breadcrumbs}}
+        <nav class="breadcrumbs" aria-label="breadcrumb">
+            {{range $index, $crumb := .Breadcrumbs}}
+                {{if $crumb.URL}}
+                    <a href="{{$crumb.URL}}">{{$crumb.Name}}</a>
+                {{else}}
+                    <span>{{$crumb.Name}}</span>
+                {{end}}
+                {{if ne (add $index 1) (len $.Breadcrumbs)}}
+                    <span class="separator">/</span>
+                {{end}}
+            {{end}}
+        </nav>
+        {{end}}
+
 <section class="page-header">
     <h1>Services</h1>
     <p>All the services running in my Kubernetes homelab</p>

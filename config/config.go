@@ -126,7 +126,7 @@ func SaveData(configPath string, cfg *models.Config) error {
 	}
 
 	servicesPath := filepath.Join(dataDir, "services.yaml")
-	if err := os.WriteFile(servicesPath, data, 0644); err != nil {
+	if err := os.WriteFile(servicesPath, data, 0600); err != nil {
 		return fmt.Errorf("writing services: %w", err)
 	}
 
@@ -138,7 +138,7 @@ func SaveData(configPath string, cfg *models.Config) error {
 	}
 
 	postsPath := filepath.Join(dataDir, "posts.yaml")
-	if err := os.WriteFile(postsPath, data, 0644); err != nil {
+	if err := os.WriteFile(postsPath, data, 0600); err != nil {
 		return fmt.Errorf("writing posts: %w", err)
 	}
 

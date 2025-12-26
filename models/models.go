@@ -60,6 +60,7 @@ type Post struct {
 	Summary  string    `yaml:"summary" json:"summary"`
 	Content  string    `yaml:"content" json:"content"`
 	Tags     []string  `yaml:"tags" json:"tags"`
+	Views    int       `yaml:"views" json:"views"`
 }
 
 type User struct {
@@ -77,4 +78,9 @@ type Comment struct {
 	CreatedAt   time.Time `json:"created_at"`
 	Approved    bool      `json:"approved"`
 	Replies     []Comment `json:"replies,omitempty"`
+}
+
+type Breadcrumb struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }

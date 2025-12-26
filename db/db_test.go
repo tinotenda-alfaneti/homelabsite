@@ -93,7 +93,9 @@ func TestUpdatePost(t *testing.T) {
 		Content:  "Original content",
 		Tags:     []string{"original"},
 	}
-	db.SavePost(post)
+	if err := db.SavePost(post); err != nil {
+		t.Fatalf("Failed to save post: %v", err)
+	}
 
 	// Update post
 	post.Title = "Updated Title"
@@ -133,7 +135,9 @@ func TestDeletePost(t *testing.T) {
 		Content:  "Test",
 		Tags:     []string{},
 	}
-	db.SavePost(post)
+	if err := db.SavePost(post); err != nil {
+		t.Fatalf("Failed to save post: %v", err)
+	}
 
 	// Delete post
 	if err := db.DeletePost("delete-test"); err != nil {

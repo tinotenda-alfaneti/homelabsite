@@ -36,9 +36,11 @@ func HandleGetComments(database *db.DB) http.HandlerFunc {
 			renderCommentsHTML(w, commentTree)
 		} else {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			if err := json.NewEncoder(w).Encode(map[string]interface{}{
 				"comments": commentTree,
-			})
+			}); err != nil {
+				log.Printf("Error encoding comments to JSON: %v", err)
+			}
 		}
 	}
 }
@@ -108,7 +110,7 @@ func renderFormError(w http.ResponseWriter, message string) {
 
 // HandleGetPendingComments returns all comments pending approval (admin only)
 func HandleGetPendingComments(database *db.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		comments, err := db.GetPendingComments(database.GetConn())
 		if err != nil {
 			http.Error(w, "Failed to retrieve pending comments", http.StatusInternalServerError)
@@ -117,9 +119,11 @@ func HandleGetPendingComments(database *db.DB) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"comments": comments,
-		})
+		}); err != nil {
+			log.Printf("Error encoding pending comments to JSON: %v", err)
+		}
 	}
 }
 
@@ -142,9 +146,11 @@ func HandleApproveComment(database *db.DB) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
+		if err := json.NewEncoder(w).Encode(map[string]string{
 			"message": "Comment approved",
-		})
+		}); err != nil {
+			log.Printf("Error encoding response: %v", err)
+		}
 	}
 }
 
@@ -167,9 +173,11 @@ func HandleDeleteComment(database *db.DB) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
+		if err := json.NewEncoder(w).Encode(map[string]string{
 			"message": "Comment deleted",
-		})
+		}); err != nil {
+			log.Printf("Error encoding response: %v", err)
+		}
 	}
 }
 

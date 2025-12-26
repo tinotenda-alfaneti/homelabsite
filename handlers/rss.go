@@ -27,7 +27,7 @@ func (app *App) HandleRSS(w http.ResponseWriter, r *http.Request) {
 		Created:     now,
 	}
 
-		// Add posts as feed items
+	// Add posts as feed items
 	feed.Items = make([]*feeds.Item, 0, len(posts))
 	for _, post := range posts {
 		item := &feeds.Item{
@@ -74,5 +74,7 @@ func (app *App) HandleRSS(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", contentType+"; charset=utf-8")
-	w.Write([]byte(feedContent))
+	if _, err := w.Write([]byte(feedContent)); err != nil {
+		log.Printf("Error writing RSS feed: %v", err)
+	}
 }

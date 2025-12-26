@@ -99,9 +99,11 @@ func TestRequireAuth(t *testing.T) {
 	am := NewAuthMiddleware("admin", "password")
 
 	// Create a test handler
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("authenticated"))
+		if _, err := w.Write([]byte("authenticated")); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
 	})
 
 	wrapped := am.RequireAuth(testHandler)

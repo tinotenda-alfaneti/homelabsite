@@ -51,16 +51,18 @@ func TestRateLimit(t *testing.T) {
 	// Very low rate for testing - 1 request per second, burst of 2
 	rl := NewRateLimiter(rate.Limit(1), 2)
 
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("success"))
+		if _, err := w.Write([]byte("success")); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
 	})
 
 	wrapped := rl.RateLimit(testHandler)
 
 	// First request should succeed
 	req1 := httptest.NewRequest("GET", "/test", nil)
-	req1.RemoteAddr = "192.168.1.1:12345"
+	req1.RemoteAddr = "192.168.1.1:12345" //nolint:goconst
 	rr1 := httptest.NewRecorder()
 	wrapped.ServeHTTP(rr1, req1)
 

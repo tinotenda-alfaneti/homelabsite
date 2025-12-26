@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/tinotenda-alfaneti/homelabsite/models"
 )
@@ -36,7 +37,11 @@ func SaveComment(database *sql.DB, comment *models.Comment) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Printf("Error rolling back transaction: %v", err)
+		}
+	}()
 
 	var parentID interface{}
 	if comment.ParentID != nil {

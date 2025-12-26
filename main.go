@@ -15,6 +15,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/tinotenda-alfaneti/homelabsite/cache"
 	"github.com/tinotenda-alfaneti/homelabsite/config"
 	"github.com/tinotenda-alfaneti/homelabsite/db"
 	"github.com/tinotenda-alfaneti/homelabsite/handlers"
@@ -76,12 +77,17 @@ func main() {
 		}
 		// Create migration marker
 		markerPath := filepath.Join(filepath.Dir(dbPath), ".migrated")
-		os.WriteFile(markerPath, []byte(time.Now().String()), 0644)
+		if err := os.WriteFile(markerPath, []byte(time.Now().String()), 0600); err != nil {
+			log.Printf("Warning: Failed to create migration marker: %v", err)
+		}
 	}
 
 	// Parse templates
 	funcMap := template.FuncMap{
 		"markdown": markdown.Render,
+		"add": func(a, b int) int {
+			return a + b
+		},
 	}
 	templates, err := template.New("").Funcs(funcMap).ParseFS(embedFS, "web/templates/*.html")
 	if err != nil {
@@ -94,6 +100,9 @@ func main() {
 	// Create rate limiter - 5 requests per second, burst of 10
 	rateLimiter := middleware.NewRateLimiter(rate.Limit(5), 10)
 
+	// Create cache
+	cacheLayer := cache.New()
+
 	// Create app
 	app := &handlers.App{
 		Config:     cfg,
@@ -101,6 +110,7 @@ func main() {
 		Auth:       auth,
 		ConfigPath: configPath,
 		DB:         database,
+		Cache:      cacheLayer,
 	}
 
 	// Setup router
@@ -131,6 +141,7 @@ func main() {
 	// API routes
 	r.HandleFunc("/api/services", app.HandleAPIServices).Methods("GET")
 	r.HandleFunc("/api/posts", app.HandleAPIPosts).Methods("GET")
+	r.HandleFunc("/api/posts/popular", app.HandleAPIPopularPosts).Methods("GET")
 	r.HandleFunc("/api/posts/{id}", app.HandleAPIGetPost).Methods("GET")
 	r.HandleFunc("/api/posts", auth.RequireAuth(app.HandleAPISavePost)).Methods("POST")
 	r.HandleFunc("/api/posts/{id}", auth.RequireAuth(app.HandleAPIDeletePost)).Methods("DELETE")
@@ -147,6 +158,9 @@ func main() {
 	// RSS Feed
 	r.HandleFunc("/rss", app.HandleRSS).Methods("GET")
 	r.HandleFunc("/feed", app.HandleRSS).Methods("GET")
+
+	// 404 Handler
+	r.NotFoundHandler = http.HandlerFunc(app.Handle404)
 
 	// Start server with graceful shutdown
 	port := config.GetEnv("PORT", "8082")

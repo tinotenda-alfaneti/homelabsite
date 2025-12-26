@@ -46,11 +46,13 @@ func (app *App) HandleSearch(w http.ResponseWriter, r *http.Request) {
 
 	// Return JSON
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"posts": posts,
 		"query": query,
 		"tag":   tag,
-	})
+	}); err != nil {
+		log.Printf("Error encoding search results to JSON: %v", err)
+	}
 }
 
 func (app *App) HandleSearchPage(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +95,7 @@ func (app *App) HandleSearchPage(w http.ResponseWriter, r *http.Request) {
 	app.Render(w, "search.html", data)
 }
 
-func (app *App) HandleAPITags(w http.ResponseWriter, r *http.Request) {
+func (app *App) HandleAPITags(w http.ResponseWriter, _ *http.Request) {
 	tags, err := app.DB.GetAllTags()
 	if err != nil {
 		log.Printf("Error getting tags: %v", err)
@@ -102,7 +104,9 @@ func (app *App) HandleAPITags(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"tags": tags,
-	})
+	}); err != nil {
+		log.Printf("Error encoding tags to JSON: %v", err)
+	}
 }

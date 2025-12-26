@@ -3,6 +3,7 @@ package middleware
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -102,6 +103,9 @@ func (am *AuthMiddleware) cleanupSessions() {
 
 func generateSessionToken() string {
 	b := make([]byte, 32)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		log.Printf("Error generating session token: %v", err)
+		return ""
+	}
 	return base64.URLEncoding.EncodeToString(b)
 }

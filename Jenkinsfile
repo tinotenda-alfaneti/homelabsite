@@ -26,7 +26,7 @@ pipeline {
     stage('Install Tools') {
       steps {
         sh '''
-          echo "Installing kubectl & helm..."
+          echo "Installing kubectl, helm & golangci-lint..."
           ARCH=$(uname -m)
           case "$ARCH" in
               x86_64)   KARCH=amd64 ;;
@@ -47,6 +47,28 @@ pipeline {
           mv linux-${KARCH}/helm $WORKSPACE/bin/helm
           chmod +x $WORKSPACE/bin/helm
           rm -rf linux-${KARCH} helm-${HELM_VER}-linux-${KARCH}.tar.gz
+
+          # golangci-lint
+          GOLANGCI_VER="v1.62.2"
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $WORKSPACE/bin ${GOLANGCI_VER}
+        '''
+      }
+    }
+
+    stage('Lint Code') {
+      steps {
+        sh '''
+          echo "Running golangci-lint..."
+          $WORKSPACE/bin/golangci-lint run --out-format colored-line-number || true
+        '''
+      }
+    }
+
+    stage('Run Tests') {
+      steps {
+        sh '''
+          echo "Running Go tests..."
+          go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         '''
       }
     }

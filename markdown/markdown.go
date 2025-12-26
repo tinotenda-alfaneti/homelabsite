@@ -6,6 +6,7 @@ import (
 )
 
 func Render(content string) template.HTML {
+	//nolint:gosec // Intentional: rendering user markdown content as HTML
 	return template.HTML(renderMarkdown(content))
 }
 
