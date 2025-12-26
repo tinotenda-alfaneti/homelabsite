@@ -99,10 +99,7 @@ pipeline {
           # Download dependencies
           $WORKSPACE/go/bin/go mod download
           
-          # Verify module is working
-          $WORKSPACE/go/bin/go list ./...
-          
-          # Run linter
+          # Run linter (it will discover packages itself)
           $WORKSPACE/bin/golangci-lint run --out-format colored-line-number
         '''
       }
