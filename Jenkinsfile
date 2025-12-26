@@ -10,7 +10,8 @@ pipeline {
     NAMESPACE       = "${REPO_NAME}-ns"
     SOURCE_NS       = "test-ns"
     KUBECONFIG_CRED = "kubeconfigglobal"
-    PATH            = "$WORKSPACE/bin:$PATH"
+    PATH            = "$WORKSPACE/go/bin:$WORKSPACE/bin:$PATH"
+    GOPATH          = "$WORKSPACE/gopath"
   }
 
   stages {
@@ -51,32 +52,47 @@ pipeline {
       }
     }
 
-    stage('Lint Code') {
-      agent {
-        docker {
-          image 'golangci/golangci-lint:v1.62.2'
-          reuseNode true
-        }
+    stage('Install Go') {
+      steps {
+        echo 'Installing Go toolchain...'
+        sh '''
+          GO_VERSION=1.22.0
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64)  GO_ARCH=amd64 ;;
+            aarch64) GO_ARCH=arm64 ;;
+            arm64)   GO_ARCH=arm64 ;;
+            armv7l)  GO_ARCH=armv6l ;;
+            *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
+          esac
+
+          curl -sSLo go.tar.gz https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
+          rm -rf "$WORKSPACE/go"
+          tar -C "$WORKSPACE" -xzf go.tar.gz
+          rm go.tar.gz
+
+          # Install golangci-lint
+          echo "Installing golangci-lint..."
+          GOLANGCI_VER="v1.62.2"
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $WORKSPACE/bin ${GOLANGCI_VER}
+        '''
       }
+    }
+
+    stage('Lint Code') {
       steps {
         sh '''
           echo "Running golangci-lint..."
-          golangci-lint run --out-format colored-line-number
+          $WORKSPACE/bin/golangci-lint run --out-format colored-line-number
         '''
       }
     }
 
     stage('Run Tests') {
-      agent {
-        docker {
-          image 'golang:1.22'
-          reuseNode true
-        }
-      }
       steps {
         sh '''
           echo "Running Go tests..."
-          go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+          $WORKSPACE/go/bin/go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         '''
       }
     }
