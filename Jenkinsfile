@@ -87,15 +87,22 @@ pipeline {
           export GOCACHE=$WORKSPACE/.cache/go-build
           export PATH=$GOROOT/bin:$PATH
           
-          # Verify we're in the right place
-          echo "Current directory: $(pwd)"
-          echo "Go files found: $(find . -name "*.go" | wc -l)"
+          # Debug: check module info
+          echo "Checking go.mod..."
+          ls -la go.mod
+          cat go.mod | head -5
           
-          # Download dependencies first
+          echo "Checking go environment..."
+          $WORKSPACE/go/bin/go env GOMOD
+          $WORKSPACE/go/bin/go env GOROOT
+          
+          # Download dependencies
           $WORKSPACE/go/bin/go mod download
           
-          # Run linter from project root
-          cd $WORKSPACE
+          # Verify module is working
+          $WORKSPACE/go/bin/go list ./...
+          
+          # Run linter
           $WORKSPACE/bin/golangci-lint run --out-format colored-line-number
         '''
       }
