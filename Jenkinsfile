@@ -89,7 +89,7 @@ pipeline {
           export PATH=$GOROOT/bin:$PATH
           
           cd $WORKSPACE
-          $WORKSPACE/go/bin/go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+          go test -v ./...
         '''
       }
     }
