@@ -52,6 +52,19 @@ pipeline {
       }
     }
 
+    stage('Lint') {
+      steps {
+        sh '''
+          echo "Installing golangci-lint..."
+          mkdir -p $WORKSPACE/bin
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $WORKSPACE/bin v1.62.2
+          echo "Running golangci-lint..."
+          export PATH=$WORKSPACE/bin:$PATH
+          $WORKSPACE/bin/golangci-lint run --timeout=5m ./...
+        '''
+      }
+    }
+
     stage('Verify Cluster Access') {
       steps {
         withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG_FILE')]) {
