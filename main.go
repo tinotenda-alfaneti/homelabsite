@@ -123,6 +123,15 @@ func main() {
 	}
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
+	// Uploads directory (served from local filesystem)
+	uploadsDir := "web/static/uploads"
+	if _, err := os.Stat(uploadsDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+			log.Fatalf("Failed to create uploads directory: %v", err)
+		}
+	}
+	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadsDir))))
+
 	// Page routes
 	r.HandleFunc("/", app.HandleHome).Methods("GET")
 	r.HandleFunc("/services", app.HandleServices).Methods("GET")

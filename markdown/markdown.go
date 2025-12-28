@@ -111,6 +111,12 @@ func renderMarkdown(content string) string {
 }
 
 func processBold(text string) string {
+	// Handle images first: ![alt text](url)
+	text = processImages(text)
+
+	// Handle links: [text](url)
+	text = processLinks(text)
+
 	// First escape the text
 	escaped := template.HTMLEscapeString(text)
 	// Then handle **bold** text
@@ -127,4 +133,58 @@ func processBold(text string) string {
 		escaped = escaped[:first] + "<strong>" + escaped[first+2:second] + "</strong>" + escaped[second+2:]
 	}
 	return escaped
+}
+
+func processImages(text string) string {
+	// Handle ![alt text](url) images
+	for strings.Contains(text, "![") {
+		start := strings.Index(text, "![")
+		if start == -1 {
+			break
+		}
+		end := strings.Index(text[start:], "](")
+		if end == -1 {
+			break
+		}
+		end += start
+		closeParen := strings.Index(text[end:], ")")
+		if closeParen == -1 {
+			break
+		}
+		closeParen += end
+
+		altText := text[start+2 : end]
+		url := text[end+2 : closeParen]
+
+		imgTag := `<img src="` + template.HTMLEscapeString(url) + `" alt="` + template.HTMLEscapeString(altText) + `" style="max-width: 100%; height: auto;">`
+		text = text[:start] + imgTag + text[closeParen+1:]
+	}
+	return text
+}
+
+func processLinks(text string) string {
+	// Handle [text](url) links
+	for strings.Contains(text, "[") {
+		start := strings.Index(text, "[")
+		if start == -1 {
+			break
+		}
+		end := strings.Index(text[start:], "](")
+		if end == -1 {
+			break
+		}
+		end += start
+		closeParen := strings.Index(text[end:], ")")
+		if closeParen == -1 {
+			break
+		}
+		closeParen += end
+
+		linkText := text[start+1 : end]
+		url := text[end+2 : closeParen]
+
+		linkTag := `<a href="` + template.HTMLEscapeString(url) + `" target="_blank" rel="noopener noreferrer">` + template.HTMLEscapeString(linkText) + `</a>`
+		text = text[:start] + linkTag + text[closeParen+1:]
+	}
+	return text
 }

@@ -2,8 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/tinotenda-alfaneti/homelabsite/models"
@@ -89,10 +95,96 @@ func (app *App) HandleAPIGetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) HandleAPISavePost(w http.ResponseWriter, r *http.Request) {
-	var post models.Post
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	// Parse multipart form
+	err := r.ParseMultipartForm(32 << 20) // 32MB max
+	if err != nil {
+		http.Error(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	var post models.Post
+	post.ID = r.FormValue("id")
+	if post.ID == "" {
+		post.ID = "post-" + fmt.Sprintf("%d", time.Now().Unix())
+	}
+	post.Title = r.FormValue("title")
+	post.Category = r.FormValue("category")
+	post.Summary = r.FormValue("summary")
+	post.Content = r.FormValue("content")
+
+	// Parse tags
+	tagsStr := r.FormValue("tags")
+	if tagsStr != "" {
+		if err := json.Unmarshal([]byte(tagsStr), &post.Tags); err != nil {
+			log.Printf("Error parsing tags: %v", err)
+			post.Tags = []string{}
+		}
+	}
+
+	// Parse date
+	dateStr := r.FormValue("date")
+	if dateStr != "" {
+		if parsed, err := time.Parse(time.RFC3339, dateStr); err == nil {
+			post.Date = parsed
+		} else {
+			post.Date = time.Now()
+		}
+	} else {
+		post.Date = time.Now()
+	}
+
+	// Handle file upload
+	file, header, err := r.FormFile("image")
+	if err == nil && header != nil {
+		defer file.Close()
+
+		// Validate file type
+		contentType := header.Header.Get("Content-Type")
+		if !strings.HasPrefix(contentType, "image/") && !strings.HasPrefix(contentType, "video/") && !strings.HasPrefix(contentType, "audio/") {
+			http.Error(w, "Invalid file type. Only images, videos, and audio files are allowed.", http.StatusBadRequest)
+			return
+		}
+
+		// Validate file size (10MB max)
+		if header.Size > 10<<20 {
+			http.Error(w, "File too large. Maximum size is 10MB.", http.StatusBadRequest)
+			return
+		}
+
+		// Generate unique filename
+		ext := filepath.Ext(header.Filename)
+		filename := fmt.Sprintf("%s_%d%s", post.ID, time.Now().Unix(), ext)
+		filePath := filepath.Join("web/static/uploads", filename)
+
+		// Create uploads directory if it doesn't exist
+		if err := os.MkdirAll("web/static/uploads", 0755); err != nil {
+			log.Printf("Error creating uploads directory: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		// Save file
+		dst, err := os.Create(filePath)
+		if err != nil {
+			log.Printf("Error creating file: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		defer dst.Close()
+
+		if _, err := io.Copy(dst, file); err != nil {
+			log.Printf("Error saving file: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		// Optionally, add image reference to content if it's an image
+		if strings.HasPrefix(contentType, "image/") {
+			imageMarkdown := fmt.Sprintf("\n\n![%s](/uploads/%s)\n\n", header.Filename, filename)
+			post.Content += imageMarkdown
+		}
+	} else if err != http.ErrMissingFile {
+		log.Printf("Error reading file: %v", err)
 	}
 
 	// Save to database

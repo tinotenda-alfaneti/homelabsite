@@ -3,9 +3,13 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -197,20 +201,22 @@ func TestHandleAPISavePost(t *testing.T) {
 	app := setupTestApp(t)
 	defer teardownTestApp(app)
 
-	newPost := models.Post{
-		ID:       "new-post",
-		Title:    "New Post",
-		Date:     time.Now(),
-		Category: "Test",
-		Summary:  "Summary",
-		Content:  "Content",
-		Tags:     []string{"new"},
-	}
+	// Create multipart form data
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
 
-	body, _ := json.Marshal(newPost)
-	req := httptest.NewRequest("POST", "/api/posts", bytes.NewBuffer(body))
+	writer.WriteField("id", "new-post")
+	writer.WriteField("title", "New Post")
+	writer.WriteField("category", "Test")
+	writer.WriteField("summary", "Summary")
+	writer.WriteField("content", "Content")
+	writer.WriteField("tags", `["new"]`)
+	writer.WriteField("date", time.Now().Format(time.RFC3339))
 
-	req.Header.Set("Content-Type", "application/json")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/posts", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(app.HandleAPISavePost)
@@ -233,6 +239,204 @@ func TestHandleAPISavePost(t *testing.T) {
 	savedPost, _ := app.DB.GetPostByID("new-post")
 	if savedPost == nil {
 		t.Error("Post was not saved to database")
+	}
+}
+
+func TestHandleAPISavePostWithFileUpload(t *testing.T) {
+	app := setupTestApp(t)
+	defer teardownTestApp(app)
+
+	// Create a temporary test file
+	testFileContent := "fake image content"
+	testFile, err := os.CreateTemp("", "test_image_*.jpg")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(testFile.Name())
+
+	if _, err := testFile.WriteString(testFileContent); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	testFile.Close()
+
+	// Reopen for reading
+	testFile, err = os.Open(testFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to reopen temp file: %v", err)
+	}
+	defer testFile.Close()
+
+	// Create multipart form data with file
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	writer.WriteField("id", "post-with-image")
+	writer.WriteField("title", "Post with Image")
+	writer.WriteField("category", "Test")
+	writer.WriteField("summary", "Summary")
+	writer.WriteField("content", "Some content")
+	writer.WriteField("tags", `["image"]`)
+	writer.WriteField("date", time.Now().Format(time.RFC3339))
+
+	// Add file
+	part, err := writer.CreatePart(map[string][]string{
+		"Content-Disposition": []string{`form-data; name="image"; filename="test_image.jpg"`},
+		"Content-Type":        []string{"image/jpeg"},
+	})
+	if err != nil {
+		t.Fatalf("Failed to create form part: %v", err)
+	}
+	part.Write([]byte("fake image content"))
+
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/posts", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(app.HandleAPISavePost)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("Response body: %s", rr.Body.String())
+		return
+	}
+
+	var response map[string]interface{}
+	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
+		t.Errorf("Failed to decode response: %v", err)
+		t.Errorf("Response body: %s", rr.Body.String())
+		return
+	}
+
+	if success, ok := response["success"].(bool); !ok || !success {
+		t.Error("Expected success to be true")
+	}
+
+	// Verify post was saved
+	savedPost, err := app.DB.GetPostByID("post-with-image")
+	if err != nil {
+		t.Errorf("Error getting post: %v", err)
+	}
+	if savedPost == nil {
+		t.Error("Post was not saved to database")
+		return
+	}
+
+	// Check that image markdown was added to content
+	if !strings.Contains(savedPost.Content, "![test_image.jpg](/uploads/") {
+		t.Errorf("Expected image markdown in content, got: %s", savedPost.Content)
+	}
+
+	// Check that file was saved
+	uploadsDir := "web/static/uploads"
+	files, err := filepath.Glob(filepath.Join(uploadsDir, "post-with-image_*.jpg"))
+	if err != nil {
+		t.Errorf("Error checking for uploaded file: %v", err)
+	}
+	if len(files) == 0 {
+		t.Error("Uploaded file was not saved")
+	} else {
+		// Clean up the uploaded file
+		for _, f := range files {
+			os.Remove(f)
+		}
+	}
+}
+
+func TestHandleAPISavePostWithInvalidFileType(t *testing.T) {
+	app := setupTestApp(t)
+	defer teardownTestApp(app)
+
+	// Create a temporary test file with invalid type
+	testFile, err := os.CreateTemp("", "test_script_*.exe")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(testFile.Name())
+
+	if _, err := testFile.WriteString("fake exe content"); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	testFile.Close()
+
+	// Create multipart form data with invalid file
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	writer.WriteField("id", "post-invalid-file")
+	writer.WriteField("title", "Post with Invalid File")
+	writer.WriteField("category", "Test")
+	writer.WriteField("summary", "Summary")
+	writer.WriteField("content", "Some content")
+	writer.WriteField("tags", `["invalid"]`)
+	writer.WriteField("date", time.Now().Format(time.RFC3339))
+
+	// Add file with invalid content type
+	fileWriter, err := writer.CreateFormFile("image", "test_script.exe")
+	if err != nil {
+		t.Fatalf("Failed to create form file: %v", err)
+	}
+	testFile, err = os.Open(testFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to open temp file: %v", err)
+	}
+	defer testFile.Close()
+	io.Copy(fileWriter, testFile)
+
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/posts", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(app.HandleAPISavePost)
+	handler.ServeHTTP(rr, req)
+
+	// Should return bad request for invalid file type
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
+func TestHandleAPISavePostWithLargeFile(t *testing.T) {
+	app := setupTestApp(t)
+	defer teardownTestApp(app)
+
+	// Create multipart form data with large file
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	writer.WriteField("id", "post-large-file")
+	writer.WriteField("title", "Post with Large File")
+	writer.WriteField("category", "Test")
+	writer.WriteField("summary", "Summary")
+	writer.WriteField("content", "Some content")
+	writer.WriteField("tags", `["large"]`)
+	writer.WriteField("date", time.Now().Format(time.RFC3339))
+
+	// Add large file (11MB, exceeds 10MB limit)
+	fileWriter, err := writer.CreateFormFile("image", "large_image.jpg")
+	if err != nil {
+		t.Fatalf("Failed to create form file: %v", err)
+	}
+	// Write 11MB of data
+	largeData := make([]byte, 11<<20) // 11MB
+	fileWriter.Write(largeData)
+
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/posts", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(app.HandleAPISavePost)
+	handler.ServeHTTP(rr, req)
+
+	// Should return bad request for file too large
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
 }
 

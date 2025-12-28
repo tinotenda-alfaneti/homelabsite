@@ -238,7 +238,7 @@
                 <div class="success-message" id="success-msg">Post saved successfully!</div>
                 <div class="error-message" id="error-msg">Error saving post. Please try again.</div>
 
-                <form id="post-form" onsubmit="savePost(event)">
+                <form id="post-form" enctype="multipart/form-data" onsubmit="savePost(event)">
                     <input type="hidden" id="post-id" name="id">
 
                     <div class="form-group">
@@ -276,9 +276,17 @@ You can use markdown:
 - # Headings
 - [links](url)
 - Lists
-- Code blocks"></textarea>
+- Code blocks
+
+To include uploaded images: ![alt text](/uploads/filename.jpg)"></textarea>
                         <div class="help-text">Supports Markdown formatting. Preview on the blog page.</div>
                         <div class="char-count"><span id="content-count">0</span> characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Upload Image/Media</label>
+                        <input type="file" id="image" name="image" accept="image/*,video/*,audio/*">
+                        <div class="help-text">Upload images, videos, or audio files. Max 10MB per file.</div>
                     </div>
 
                     <div class="form-group">
@@ -392,22 +400,23 @@ You can use markdown:
         function savePost(event) {
             event.preventDefault();
             
-            const formData = {
-                id: document.getElementById('post-id').value || generateId(),
-                title: document.getElementById('title').value,
-                category: document.getElementById('category').value,
-                summary: document.getElementById('summary').value,
-                content: document.getElementById('content').value,
-                tags: currentTags,
-                date: new Date().toISOString()
-            };
+            const formData = new FormData();
+            formData.append('id', document.getElementById('post-id').value || generateId());
+            formData.append('title', document.getElementById('title').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('summary', document.getElementById('summary').value);
+            formData.append('content', document.getElementById('content').value);
+            formData.append('tags', JSON.stringify(currentTags));
+            formData.append('date', new Date().toISOString());
+            
+            const imageFile = document.getElementById('image').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
 
             fetch('/api/posts', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
+                body: formData
             })
             .then(res => res.json())
             .then(data => {
@@ -415,13 +424,15 @@ You can use markdown:
                     showSuccess();
                     // Update post ID if it was new
                     if (!document.getElementById('post-id').value) {
-                        document.getElementById('post-id').value = formData.id;
+                        document.getElementById('post-id').value = data.post.id;
                     }
                     document.getElementById('delete-btn').style.display = 'block';
+                    // Clear file input
+                    document.getElementById('image').value = '';
                     // Reload page to update sidebar
                     setTimeout(() => location.reload(), 1500);
                 } else {
-                    showError();
+                    showError(data.error || 'Error saving post');
                 }
             })
             .catch(err => {
