@@ -47,8 +47,8 @@ envFrom:
   - secretRef:
       name: homelab-admin-creds
 
-# Persistent storage for dynamic data (posts, services)
-# This is where posts.yaml and services.yaml are stored and can be edited via admin interface
+# Persistent storage for dynamic data (posts, projects)
+# This is where posts.yaml and projects.yaml are stored and can be edited via admin interface
 persistence:
   enabled: true
   storageClass: "microk8s-hostpath"  # MicroK8s default storage class
@@ -66,7 +66,7 @@ configMap:
     config.yaml: |
       # Application Configuration
       # This file contains actual configuration settings for the homelab site.
-      # Data content (posts, services) is stored in the PVC at /app/data
+      # Data content (posts, projects) is stored in the PVC at /app/data
 
       app:
         name: "Atarnet Homelab Site"
@@ -82,17 +82,17 @@ configMap:
       features:
         admin_enabled: true
         blog_enabled: true
-        services_enabled: true
+        projects_enabled: true
 
       data:
         posts_file: "data/posts.yaml"
-        services_file: "data/services.yaml"
+        projects_file: "data/projects.yaml"
 
 # Initial data to populate PVC on first deployment
 # This data will be copied to the PVC by the init container only if the files don't exist
-# After first deploy, use the admin UI to add/edit posts and services
+# After first deploy, use the admin UI to add/edit posts and projects
 initialData:
   posts:
     posts: []
-  services:
-    services: []
+  projects:
+    projects: []

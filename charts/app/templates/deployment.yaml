@@ -24,18 +24,18 @@ spec:
         args:
           - |
             CHECKSUM_FILE="/app/data/.data-checksum"
-            CURRENT_CHECKSUM="$(cat /init-data/posts.yaml /init-data/services.yaml | md5sum | cut -d' ' -f1)"
+            CURRENT_CHECKSUM="$(cat /init-data/posts.yaml /init-data/projects.yaml | md5sum | cut -d' ' -f1)"
             
             if [ ! -f /app/data/posts.yaml ]; then
               echo "No existing data found. Copying initial data..."
               cp /init-data/posts.yaml /app/data/posts.yaml
-              cp /init-data/services.yaml /app/data/services.yaml
+              cp /init-data/projects.yaml /app/data/projects.yaml
               echo "$CURRENT_CHECKSUM" > "$CHECKSUM_FILE"
               echo "Data initialized."
             elif [ ! -f "$CHECKSUM_FILE" ] || [ "$(cat $CHECKSUM_FILE)" != "$CURRENT_CHECKSUM" ]; then
               echo "ConfigMap data has changed. Updating PVC data..."
               cp /init-data/posts.yaml /app/data/posts.yaml
-              cp /init-data/services.yaml /app/data/services.yaml
+              cp /init-data/projects.yaml /app/data/projects.yaml
               echo "$CURRENT_CHECKSUM" > "$CHECKSUM_FILE"
               echo "Data updated from ConfigMap."
             else

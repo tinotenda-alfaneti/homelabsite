@@ -1,4 +1,4 @@
-{{define "services.html"}}
+{{define "projects.html"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +16,7 @@
                 <a href="/" class="logo">Atarnet Homelab</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
-                    <li><a href="/services">Services</a></li>
+                    <li><a href="/projects">Projects</a></li>
                     <li><a href="/blog">Blog</a></li>
                     <li><a href="/about">About</a></li>
                     <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
@@ -42,15 +42,15 @@
         {{end}}
 
 <section class="page-header">
-    <h1>Services</h1>
-    <p>All the services running in my Kubernetes homelab</p>
+    <h1>Projects</h1>
+    <p>All the projects I've worked on in my homelab and beyond</p>
 </section>
 
 <div class="filters">
-    <button class="filter-btn active" hx-get="/api/services" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">All</button>
-    <button class="filter-btn" hx-get="/api/services?status=internal" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Internal</button>
-    <button class="filter-btn" hx-get="/api/services?status=public" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Public</button>
-    <button class="filter-btn" hx-get="/api/services?status=development" hx-target="#services-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Development</button>
+    <button class="filter-btn active" hx-get="/api/projects" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">All</button>
+    <button class="filter-btn" hx-get="/api/projects?status=internal" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Internal</button>
+    <button class="filter-btn" hx-get="/api/projects?status=public" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Public</button>
+    <button class="filter-btn" hx-get="/api/projects?status=development" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Development</button>
 </div>
 
 <script>
@@ -60,20 +60,20 @@ function setActiveFilter(btn) {
 }
 </script>
 
-<div id="services-container" class="services-grid">
-    {{ range .Services }}
-    <div class="service-card">
+<div id="projects-container" class="projects-grid">
+    {{ range .Projects }}
+    <div class="project-card">
         {{ if ne .Icon "" }}
-        <div class="service-icon">{{ .Icon }}</div>
+        <div class="project-icon">{{ .Icon }}</div>
         {{ end }}
         <h3>{{ .Name }}</h3>
         <p>{{ .Description }}</p>
-        <div class="service-meta">
+        <div class="project-meta">
             <span class="tech-badge">{{ .Tech }}</span>
             <span class="status-badge status-{{ .Status }}">{{ .Status }}</span>
         </div>
         {{ if ne .URL "" }}
-        <a href="{{ .URL }}" target="_blank" class="service-link">Visit →</a>
+        <a href="{{ .URL }}" target="_blank" class="project-link">Visit →</a>
         {{ end }}
     </div>
     {{ end }}
@@ -130,7 +130,7 @@ function setActiveFilter(btn) {
             <p>Atarnet Homelab &copy; Copyright 2025</p>
             <div class="footer-links">
                 <a href="/">Home</a>
-                <a href="/services">Services</a>
+                <a href="/projects">Projects</a>
                 <a href="/blog">Blog</a>
                 <a href="/about">About</a>
             </div>
@@ -140,20 +140,20 @@ function setActiveFilter(btn) {
 </html>
 {{end}}
 
-{{define "services-grid"}}
-{{ range .Services }}
-<div class="service-card">
+{{define "projects-grid"}}
+{{ range .Projects }}
+<div class="project-card">
     {{ if ne .Icon "" }}
-    <div class="service-icon">{{ .Icon }}</div>
+    <div class="project-icon">{{ .Icon }}</div>
     {{ end }}
     <h3>{{ .Name }}</h3>
     <p>{{ .Description }}</p>
-    <div class="service-meta">
+    <div class="project-meta">
         <span class="tech-badge">{{ .Tech }}</span>
         <span class="status-badge status-{{ .Status }}">{{ .Status }}</span>
     </div>
     {{ if ne .URL "" }}
-    <a href="{{ .URL }}" target="_blank" class="service-link">Visit →</a>
+    <a href="{{ .URL }}" target="_blank" class="project-link">Visit →</a>
     {{ end }}
 </div>
 {{ end }}

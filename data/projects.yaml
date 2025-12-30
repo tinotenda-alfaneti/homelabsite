@@ -1,4 +1,4 @@
-services:
+projects:
     - name: Homelab Site
       description: Personal homelab dashboard and documentation site
       url: https://atarnet.org
@@ -91,7 +91,7 @@ services:
       icon: ""
     - name: LabMan CLI
       description: Command-line tool for managing remote homelab sessions via SSH
-      url: https://github.com/tinotenda-alfaneti/labman
+      url: https://github.com/tinotenda-alfaneti/labman-cli
       tech: Go + Cobra
       status: public
       icon: ""

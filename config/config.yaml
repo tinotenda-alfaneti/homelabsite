@@ -19,4 +19,4 @@ features:
 
 data:
   posts_file: "data/posts.yaml"
-  services_file: "data/services.yaml"
+  projects_file: "data/projects.yaml"

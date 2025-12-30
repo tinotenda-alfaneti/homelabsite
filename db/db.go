@@ -85,7 +85,7 @@ func (db *DB) initSchema() error {
 	CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
 	CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views DESC);
 
-	CREATE TABLE IF NOT EXISTS services (
+	CREATE TABLE IF NOT EXISTS projects (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
 		description TEXT NOT NULL,
@@ -97,7 +97,7 @@ func (db *DB) initSchema() error {
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
 
-	CREATE INDEX IF NOT EXISTS idx_services_status ON services(status);
+	CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 	`
 
 	if _, err := db.conn.Exec(schema); err != nil {
@@ -187,57 +187,57 @@ func (db *DB) DeletePost(id string) error {
 	return err
 }
 
-// GetAllServices retrieves all services from the database
-func (db *DB) GetAllServices() ([]models.Service, error) {
-	query := `SELECT name, description, url, tech, status, icon FROM services ORDER BY name`
+// GetAllProjects retrieves all projects from the database
+func (db *DB) GetAllProjects() ([]models.Project, error) {
+	query := `SELECT name, description, url, tech, status, icon FROM projects ORDER BY name`
 	rows, err := db.conn.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var services []models.Service
+	var projects []models.Project
 	for rows.Next() {
-		var s models.Service
-		if err := rows.Scan(&s.Name, &s.Description, &s.URL, &s.Tech, &s.Status, &s.Icon); err != nil {
+		var p models.Project
+		if err := rows.Scan(&p.Name, &p.Description, &p.URL, &p.Tech, &p.Status, &p.Icon); err != nil {
 			return nil, err
 		}
-		services = append(services, s)
+		projects = append(projects, p)
 	}
 
-	return services, rows.Err()
+	return projects, rows.Err()
 }
 
-// SaveService creates or updates a service
-func (db *DB) SaveService(service *models.Service) error {
-	// Check if service exists by name
+// SaveProject creates or updates a project
+func (db *DB) SaveProject(project *models.Project) error {
+	// Check if project exists by name
 	var exists bool
-	err := db.conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM services WHERE name = ?)`, service.Name).Scan(&exists)
+	err := db.conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM projects WHERE name = ?)`, project.Name).Scan(&exists)
 	if err != nil {
 		return err
 	}
 
 	if exists {
 		query := `
-		UPDATE services 
+		UPDATE projects 
 		SET description = ?, url = ?, tech = ?, status = ?, icon = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE name = ?
 		`
-		_, err = db.conn.Exec(query, service.Description, service.URL, service.Tech, service.Status, service.Icon, service.Name)
+		_, err = db.conn.Exec(query, project.Description, project.URL, project.Tech, project.Status, project.Icon, project.Name)
 	} else {
 		query := `
-		INSERT INTO services (name, description, url, tech, status, icon)
+		INSERT INTO projects (name, description, url, tech, status, icon)
 		VALUES (?, ?, ?, ?, ?, ?)
 		`
-		_, err = db.conn.Exec(query, service.Name, service.Description, service.URL, service.Tech, service.Status, service.Icon)
+		_, err = db.conn.Exec(query, project.Name, project.Description, project.URL, project.Tech, project.Status, project.Icon)
 	}
 
 	return err
 }
 
 // MigrateFromYAML imports data from YAML files into the database
-func (db *DB) MigrateFromYAML(posts []models.Post, services []models.Service) error {
-	log.Printf("Migrating %d posts and %d services from YAML to database", len(posts), len(services))
+func (db *DB) MigrateFromYAML(posts []models.Post, projects []models.Project) error {
+	log.Printf("Migrating %d posts and %d projects from YAML to database", len(posts), len(projects))
 
 	// Migrate posts
 	for _, post := range posts {
@@ -249,10 +249,10 @@ func (db *DB) MigrateFromYAML(posts []models.Post, services []models.Service) er
 		}
 	}
 
-	// Migrate services
-	for _, service := range services {
-		if err := db.SaveService(&service); err != nil {
-			return fmt.Errorf("migrating service %s: %w", service.Name, err)
+	// Migrate projects
+	for _, project := range projects {
+		if err := db.SaveProject(&project); err != nil {
+			return fmt.Errorf("migrating project %s: %w", project.Name, err)
 		}
 	}
 

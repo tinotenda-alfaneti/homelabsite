@@ -8,6 +8,6 @@ metadata:
 data:
   posts.yaml: |
 {{ .Values.initialData.posts | toYaml | indent 4 }}
-  services.yaml: |
-{{ .Values.initialData.services | toYaml | indent 4 }}
+  projects.yaml: |
+{{ .Values.initialData.projects | toYaml | indent 4 }}
 {{- end }}

@@ -209,8 +209,8 @@ func TestGetAllPosts(t *testing.T) {
 	}
 }
 
-func TestSaveAndGetService(t *testing.T) {
-	dbPath := "test_service.db"
+func TestSaveAndGetProject(t *testing.T) {
+	dbPath := "test_project.db"
 	defer os.Remove(dbPath)
 
 	db, err := New(dbPath)
@@ -219,32 +219,32 @@ func TestSaveAndGetService(t *testing.T) {
 	}
 	defer db.Close()
 
-	// Create test service
-	service := &models.Service{
-		Name:        "Test Service",
-		Description: "A test service",
+	// Create test project
+	project := &models.Project{
+		Name:        "Test Project",
+		Description: "A test project",
 		URL:         "https://test.example.com",
 		Tech:        "Go",
 		Status:      "active",
 		Icon:        "🧪",
 	}
 
-	// Save service
-	if err := db.SaveService(service); err != nil {
-		t.Fatalf("Failed to save service: %v", err)
+	// Save project
+	if err := db.SaveProject(project); err != nil {
+		t.Fatalf("Failed to save project: %v", err)
 	}
 
-	// Get all services
-	services, err := db.GetAllServices()
+	// Get all projects
+	projects, err := db.GetAllProjects()
 	if err != nil {
-		t.Fatalf("Failed to get services: %v", err)
+		t.Fatalf("Failed to get projects: %v", err)
 	}
 
-	if len(services) != 1 {
-		t.Fatalf("Expected 1 service, got %d", len(services))
+	if len(projects) != 1 {
+		t.Fatalf("Expected 1 project, got %d", len(projects))
 	}
 
-	if services[0].Name != service.Name {
-		t.Errorf("Expected name '%s', got '%s'", service.Name, services[0].Name)
+	if projects[0].Name != project.Name {
+		t.Errorf("Expected name '%s', got '%s'", project.Name, projects[0].Name)
 	}
 }

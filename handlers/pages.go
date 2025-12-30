@@ -3,38 +3,40 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"sort"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/tinotenda-alfaneti/homelabsite/models"
 )
 
 func (app *App) HandleHome(w http.ResponseWriter, _ *http.Request) {
-	services, _ := app.DB.GetAllServices()
+	projects, _ := app.DB.GetAllProjects()
 	posts, _ := app.DB.GetAllPosts()
 
 	data := map[string]interface{}{
 		"Title":    "Atarnet Homelab - K8s Infrastructure at Home",
-		"Services": services[:Min(4, len(services))],
+		"Projects": projects[:Min(4, len(projects))],
 		"Posts":    posts[:Min(3, len(posts))],
 	}
 	app.Render(w, "home.html", data)
 }
 
-func (app *App) HandleServices(w http.ResponseWriter, _ *http.Request) {
-	services, _ := app.DB.GetAllServices()
+func (app *App) HandleProjects(w http.ResponseWriter, _ *http.Request) {
+	projects, _ := app.DB.GetAllProjects()
 
 	// Build breadcrumbs
 	breadcrumbs := []models.Breadcrumb{
 		{Name: "Home", URL: "/"},
-		{Name: "Services", URL: ""},
+		{Name: "Projects", URL: ""},
 	}
 
 	data := map[string]interface{}{
-		"Title":       "Services - Atarnet Homelab",
-		"Services":    services,
+		"Title":       "Projects - Atarnet Homelab",
+		"Projects":    projects,
 		"Breadcrumbs": breadcrumbs,
 	}
-	app.Render(w, "services.html", data)
+	app.Render(w, "projects.html", data)
 }
 
 func (app *App) HandleBlog(w http.ResponseWriter, r *http.Request) {
@@ -95,8 +97,28 @@ func (app *App) HandleBlogPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) HandleAbout(w http.ResponseWriter, _ *http.Request) {
+	projects, _ := app.DB.GetAllProjects()
+
+	// Aggregate unique skills from projects
+	skillsMap := make(map[string]bool)
+	for _, p := range projects {
+		techs := strings.Split(p.Tech, " + ")
+		for _, tech := range techs {
+			tech = strings.TrimSpace(tech)
+			if tech != "" {
+				skillsMap[tech] = true
+			}
+		}
+	}
+	skills := []string{}
+	for skill := range skillsMap {
+		skills = append(skills, skill)
+	}
+	sort.Strings(skills)
+
 	data := map[string]interface{}{
-		"Title": "About - Atarnet Homelab",
+		"Title":  "About - Atarnet Homelab",
+		"Skills": skills,
 	}
 	app.Render(w, "about.html", data)
 }

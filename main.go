@@ -72,7 +72,7 @@ func main() {
 	// Check if we need to migrate from YAML
 	if shouldMigrate(dbPath) {
 		log.Printf("Performing initial migration from YAML to database")
-		if err := database.MigrateFromYAML(cfg.Posts, cfg.Services); err != nil {
+		if err := database.MigrateFromYAML(cfg.Posts, cfg.Projects); err != nil {
 			log.Fatalf("Failed to migrate from YAML: %v", err)
 		}
 		// Create migration marker
@@ -134,7 +134,7 @@ func main() {
 
 	// Page routes
 	r.HandleFunc("/", app.HandleHome).Methods("GET")
-	r.HandleFunc("/services", app.HandleServices).Methods("GET")
+	r.HandleFunc("/projects", app.HandleProjects).Methods("GET")
 	r.HandleFunc("/blog", app.HandleBlog).Methods("GET")
 	r.HandleFunc("/blog/{id}", app.HandleBlogPost).Methods("GET")
 	r.HandleFunc("/search", app.HandleSearchPage).Methods("GET")
@@ -148,7 +148,7 @@ func main() {
 	r.HandleFunc("/admin", auth.RequireAuth(app.HandleAdmin)).Methods("GET")
 
 	// API routes
-	r.HandleFunc("/api/services", app.HandleAPIServices).Methods("GET")
+	r.HandleFunc("/api/projects", app.HandleAPIProjects).Methods("GET")
 	r.HandleFunc("/api/posts", app.HandleAPIPosts).Methods("GET")
 	r.HandleFunc("/api/posts/popular", app.HandleAPIPopularPosts).Methods("GET")
 	r.HandleFunc("/api/posts/{id}", app.HandleAPIGetPost).Methods("GET")

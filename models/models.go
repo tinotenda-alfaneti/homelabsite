@@ -18,17 +18,17 @@ type AppConfig struct {
 	Features struct {
 		AdminEnabled    bool `yaml:"admin_enabled"`
 		BlogEnabled     bool `yaml:"blog_enabled"`
-		ServicesEnabled bool `yaml:"services_enabled"`
+		ProjectsEnabled bool `yaml:"projects_enabled"`
 	} `yaml:"features"`
 	Data struct {
 		PostsFile    string `yaml:"posts_file"`
-		ServicesFile string `yaml:"services_file"`
+		ProjectsFile string `yaml:"projects_file"`
 	} `yaml:"data"`
 }
 
-// ServicesData holds the services content
-type ServicesData struct {
-	Services []Service `yaml:"services"`
+// ProjectsData holds the projects content
+type ProjectsData struct {
+	Projects []Project `yaml:"projects"`
 }
 
 // PostsData holds the blog posts content
@@ -39,11 +39,11 @@ type PostsData struct {
 // Config is the combined runtime configuration
 type Config struct {
 	AppConfig *AppConfig
-	Services  []Service
+	Projects  []Project
 	Posts     []Post
 }
 
-type Service struct {
+type Project struct {
 	Name        string `yaml:"name" json:"name"`
 	Description string `yaml:"description" json:"description"`
 	URL         string `yaml:"url" json:"url"`

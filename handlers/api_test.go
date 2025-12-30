@@ -45,7 +45,7 @@ func setupTestApp(t *testing.T) *App {
 		t.Fatalf("Failed to save test post: %v", err)
 	}
 
-	testService := &models.Service{
+	testProject := &models.Project{
 		Name:        "Test Service",
 		Description: "A test service",
 		URL:         "https://test.example.com",
@@ -53,8 +53,8 @@ func setupTestApp(t *testing.T) *App {
 		Status:      "active",
 		Icon:        "🧪",
 	}
-	if err := database.SaveService(testService); err != nil {
-		t.Fatalf("Failed to save test service: %v", err)
+	if err := database.SaveProject(testProject); err != nil {
+		t.Fatalf("Failed to save test project: %v", err)
 	}
 
 	return &App{
@@ -71,56 +71,56 @@ func teardownTestApp(app *App) {
 	os.Remove("/tmp/test_homelab.db")
 }
 
-func TestHandleAPIServices(t *testing.T) {
+func TestHandleAPIProjects(t *testing.T) {
 	app := setupTestApp(t)
 	defer teardownTestApp(app)
 
-	req := httptest.NewRequest("GET", "/api/services", nil)
+	req := httptest.NewRequest("GET", "/api/projects", nil)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(app.HandleAPIServices)
+	handler := http.HandlerFunc(app.HandleAPIProjects)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	var services []models.Service
-	if err := json.NewDecoder(rr.Body).Decode(&services); err != nil {
+	var projects []models.Project
+	if err := json.NewDecoder(rr.Body).Decode(&projects); err != nil {
 		t.Errorf("Failed to decode response: %v", err)
 	}
 
-	if len(services) == 0 {
-		t.Error("Expected at least one service")
+	if len(projects) == 0 {
+		t.Error("Expected at least one project")
 	}
 
-	if services[0].Name != "Test Service" {
-		t.Errorf("Expected service name 'Test Service', got '%s'", services[0].Name)
+	if projects[0].Name != "Test Service" {
+		t.Errorf("Expected project name 'Test Service', got '%s'", projects[0].Name)
 	}
 }
 
-func TestHandleAPIServicesWithStatusFilter(t *testing.T) {
+func TestHandleAPIProjectsWithStatusFilter(t *testing.T) {
 	app := setupTestApp(t)
 	defer teardownTestApp(app)
 
-	req := httptest.NewRequest("GET", "/api/services?status=active", nil)
+	req := httptest.NewRequest("GET", "/api/projects?status=active", nil)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(app.HandleAPIServices)
+	handler := http.HandlerFunc(app.HandleAPIProjects)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	var services []models.Service
-	if err := json.NewDecoder(rr.Body).Decode(&services); err != nil {
+	var projects []models.Project
+	if err := json.NewDecoder(rr.Body).Decode(&projects); err != nil {
 		t.Errorf("Failed to decode response: %v", err)
 	}
 
-	for _, s := range services {
-		if s.Status != "active" {
-			t.Errorf("Expected only active services, got status: %s", s.Status)
+	for _, p := range projects {
+		if p.Status != "active" {
+			t.Errorf("Expected only active projects, got status: %s", p.Status)
 		}
 	}
 }

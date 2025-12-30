@@ -78,16 +78,16 @@ func Load(configPath string) (*models.Config, error) {
 	// Determine data directory
 	dataDir := GetDataDir(configPath)
 
-	// Load services data
-	servicesPath := filepath.Join(dataDir, "services.yaml")
-	servicesData, err := os.ReadFile(servicesPath)
+	// Load projects data
+	projectsPath := filepath.Join(dataDir, "projects.yaml")
+	projectsData, err := os.ReadFile(projectsPath)
 	if err != nil {
-		return nil, fmt.Errorf("reading services: %w", err)
+		return nil, fmt.Errorf("reading projects: %w", err)
 	}
 
-	var services models.ServicesData
-	if err := yaml.Unmarshal(servicesData, &services); err != nil {
-		return nil, fmt.Errorf("parsing services: %w", err)
+	var projects models.ProjectsData
+	if err := yaml.Unmarshal(projectsData, &projects); err != nil {
+		return nil, fmt.Errorf("parsing projects: %w", err)
 	}
 
 	// Load posts data
@@ -109,25 +109,25 @@ func Load(configPath string) (*models.Config, error) {
 
 	return &models.Config{
 		AppConfig: &appConfig,
-		Services:  services.Services,
+		Projects:  projects.Projects,
 		Posts:     posts.Posts,
 	}, nil
 }
 
-// SaveData saves posts and services data to their respective files
+// SaveData saves posts and projects data to their respective files
 func SaveData(configPath string, cfg *models.Config) error {
 	dataDir := GetDataDir(configPath)
 
-	// Save services
-	servicesData := models.ServicesData{Services: cfg.Services}
-	data, err := yaml.Marshal(servicesData)
+	// Save projects
+	projectsData := models.ProjectsData{Projects: cfg.Projects}
+	data, err := yaml.Marshal(projectsData)
 	if err != nil {
-		return fmt.Errorf("marshaling services: %w", err)
+		return fmt.Errorf("marshaling projects: %w", err)
 	}
 
-	servicesPath := filepath.Join(dataDir, "services.yaml")
-	if err := os.WriteFile(servicesPath, data, 0600); err != nil {
-		return fmt.Errorf("writing services: %w", err)
+	projectsPath := filepath.Join(dataDir, "projects.yaml")
+	if err := os.WriteFile(projectsPath, data, 0600); err != nil {
+		return fmt.Errorf("writing projects: %w", err)
 	}
 
 	// Save posts

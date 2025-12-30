@@ -17,35 +17,35 @@ import (
 
 const htmxRequestHeader = "true"
 
-func (app *App) HandleAPIServices(w http.ResponseWriter, r *http.Request) {
+func (app *App) HandleAPIProjects(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
 
-	// Get services from database
-	services, err := app.DB.GetAllServices()
+	// Get projects from database
+	projects, err := app.DB.GetAllProjects()
 	if err != nil {
-		log.Printf("Error getting services from database: %v", err)
+		log.Printf("Error getting projects from database: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	if status != "" {
-		filtered := []models.Service{}
-		for _, s := range services {
-			if s.Status == status {
-				filtered = append(filtered, s)
+		filtered := []models.Project{}
+		for _, p := range projects {
+			if p.Status == status {
+				filtered = append(filtered, p)
 			}
 		}
-		services = filtered
+		projects = filtered
 	}
 
 	// Check if HTMX request
 	if r.Header.Get("HX-Request") == htmxRequestHeader {
 		// Return HTML fragment
 		data := map[string]interface{}{
-			"Services": services,
+			"Projects": projects,
 		}
 		w.Header().Set("Content-Type", "text/html")
-		if err := app.Templates.ExecuteTemplate(w, "services-grid", data); err != nil {
+		if err := app.Templates.ExecuteTemplate(w, "projects-grid", data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		return
@@ -53,8 +53,8 @@ func (app *App) HandleAPIServices(w http.ResponseWriter, r *http.Request) {
 
 	// Return JSON for non-HTMX requests
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(services); err != nil {
-		log.Printf("Error encoding services to JSON: %v", err)
+	if err := json.NewEncoder(w).Encode(projects); err != nil {
+		log.Printf("Error encoding projects to JSON: %v", err)
 	}
 }
 
