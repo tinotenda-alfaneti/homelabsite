@@ -43,6 +43,7 @@ func TestSaveAndGetPost(t *testing.T) {
 		Summary:  "A test post",
 		Content:  "This is test content",
 		Tags:     []string{"test", "demo"},
+		Status:   "published",
 	}
 
 	// Save post
@@ -92,6 +93,7 @@ func TestUpdatePost(t *testing.T) {
 		Summary:  "Original summary",
 		Content:  "Original content",
 		Tags:     []string{"original"},
+		Status:   "published",
 	}
 	if err := db.SavePost(post); err != nil {
 		t.Fatalf("Failed to save post: %v", err)
@@ -134,6 +136,7 @@ func TestDeletePost(t *testing.T) {
 		Summary:  "Test",
 		Content:  "Test",
 		Tags:     []string{},
+		Status:   "published",
 	}
 	if err := db.SavePost(post); err != nil {
 		t.Fatalf("Failed to save post: %v", err)

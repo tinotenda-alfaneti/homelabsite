@@ -20,8 +20,8 @@ func (app *App) HandleSearch(w http.ResponseWriter, r *http.Request) {
 		// Full-text search
 		posts, err = app.DB.SearchPosts(query)
 	} else {
-		// No search query, return empty
-		posts, err = app.DB.GetAllPosts()
+		// No search query, return published posts
+		posts, err = app.DB.GetPublishedPosts()
 	}
 
 	if err != nil {
@@ -70,7 +70,7 @@ func (app *App) HandleSearchPage(w http.ResponseWriter, r *http.Request) {
 		posts, err = app.DB.SearchPosts(query)
 		searchType = "query"
 	} else {
-		posts, err = app.DB.GetAllPosts()
+		posts, err = app.DB.GetPublishedPosts()
 		searchType = "all"
 	}
 

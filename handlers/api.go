@@ -59,7 +59,7 @@ func (app *App) HandleAPIProjects(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) HandleAPIPosts(w http.ResponseWriter, _ *http.Request) {
-	posts, err := app.DB.GetAllPosts()
+	posts, err := app.DB.GetPublishedPosts()
 	if err != nil {
 		log.Printf("Error getting posts from database: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -131,6 +131,12 @@ func (app *App) HandleAPISavePost(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		post.Date = time.Now()
+	}
+
+	// Parse status
+	post.Status = r.FormValue("status")
+	if post.Status == "" {
+		post.Status = "published"
 	}
 
 	// Handle file upload

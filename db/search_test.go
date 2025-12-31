@@ -28,6 +28,7 @@ func TestSearchPosts(t *testing.T) {
 			Summary:  "Learn Kubernetes fundamentals",
 			Content:  "This post covers Kubernetes deployment, pods, and services in detail.",
 			Tags:     []string{"kubernetes", "docker", "devops"},
+			Status:   "published",
 		},
 		{
 			ID:       "golang-tips",
@@ -37,6 +38,7 @@ func TestSearchPosts(t *testing.T) {
 			Summary:  "Pro tips for Go developers",
 			Content:  "Explore advanced Go patterns including goroutines and channels.",
 			Tags:     []string{"golang", "programming"},
+			Status:   "published",
 		},
 		{
 			ID:       "docker-compose",
@@ -46,6 +48,7 @@ func TestSearchPosts(t *testing.T) {
 			Summary:  "Master docker-compose",
 			Content:  "Learn how to use docker-compose for multi-container applications.",
 			Tags:     []string{"docker", "devops"},
+			Status:   "published",
 		},
 	}
 

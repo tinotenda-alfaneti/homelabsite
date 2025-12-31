@@ -138,6 +138,25 @@
             border-bottom: none;
         }
 
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-published {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
         .post-item-info h3 {
             font-size: 1.125rem;
             margin-bottom: 0.25rem;
@@ -200,7 +219,7 @@
                 <a href="/" class="logo">Atarnet Homelab</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
-                    <li><a href="/services">Services</a></li>
+                    <li><a href="/projects">Projects</a></li>
                     <li><a href="/blog">Blog</a></li>
                     <li><a href="/about">About</a></li>
                     <li><a href="/admin" style="color: var(--accent);">Admin</a></li>
@@ -221,7 +240,10 @@
                         <div class="post-item-info">
                             <h3>{{.Title}}</h3>
                             <div class="post-item-meta">
-                                {{.Date.Format "Jan 2, 2006"}} • {{.Category}}
+                                {{.Date.Format "Jan 2, 2006"}} • {{.Category}} • 
+                                <span class="status-badge {{if eq .Status "draft"}}status-draft{{else}}status-published{{end}}">
+                                    {{.Status}}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -257,6 +279,14 @@
                             <option value="Development">Development</option>
                             <option value="Infrastructure">Infrastructure</option>
                             <option value="Networking">Networking</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status *</label>
+                        <select id="status" name="status" required>
+                            <option value="draft">Draft (not visible to public)</option>
+                            <option value="published">Published (visible to public)</option>
                         </select>
                     </div>
 
@@ -377,6 +407,7 @@ To include uploaded images: ![alt text](/uploads/filename.jpg)"></textarea>
                     document.getElementById('post-id').value = post.id;
                     document.getElementById('title').value = post.title;
                     document.getElementById('category').value = post.category;
+                    document.getElementById('status').value = post.status || 'published';
                     document.getElementById('summary').value = post.summary;
                     document.getElementById('content').value = post.content;
                     currentTags = post.tags || [];
@@ -404,6 +435,7 @@ To include uploaded images: ![alt text](/uploads/filename.jpg)"></textarea>
             formData.append('id', document.getElementById('post-id').value || generateId());
             formData.append('title', document.getElementById('title').value);
             formData.append('category', document.getElementById('category').value);
+            formData.append('status', document.getElementById('status').value);
             formData.append('summary', document.getElementById('summary').value);
             formData.append('content', document.getElementById('content').value);
             formData.append('tags', JSON.stringify(currentTags));

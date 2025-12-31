@@ -77,6 +77,7 @@ func (db *DB) initSchema() error {
 		content TEXT NOT NULL,
 		tags TEXT NOT NULL,
 		views INTEGER DEFAULT 0,
+		status TEXT DEFAULT 'published',
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
@@ -84,6 +85,7 @@ func (db *DB) initSchema() error {
 	CREATE INDEX IF NOT EXISTS idx_posts_date ON posts(date DESC);
 	CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
 	CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views DESC);
+	CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
 
 	CREATE TABLE IF NOT EXISTS projects (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -104,6 +106,11 @@ func (db *DB) initSchema() error {
 		return err
 	}
 
+	// Migrate existing posts to have 'published' status if they don't have one
+	if err := db.migratePostStatus(); err != nil {
+		return fmt.Errorf("migrating post status: %w", err)
+	}
+
 	// Create comments table
 	if err := CreateCommentsTable(db.conn); err != nil {
 		return fmt.Errorf("creating comments table: %w", err)
@@ -112,9 +119,30 @@ func (db *DB) initSchema() error {
 	return nil
 }
 
+// migratePostStatus sets default status for existing posts
+func (db *DB) migratePostStatus() error {
+	// Check if status column exists and has null values
+	var count int
+	err := db.conn.QueryRow("SELECT COUNT(*) FROM posts WHERE status IS NULL OR status = ''").Scan(&count)
+	if err != nil {
+		// Column might not exist yet, skip migration
+		return nil
+	}
+
+	if count > 0 {
+		_, err := db.conn.Exec("UPDATE posts SET status = 'published' WHERE status IS NULL OR status = ''")
+		if err != nil {
+			return fmt.Errorf("updating post status: %w", err)
+		}
+		log.Printf("Migrated %d posts to 'published' status", count)
+	}
+
+	return nil
+}
+
 // GetAllPosts retrieves all posts from the database
 func (db *DB) GetAllPosts() ([]models.Post, error) {
-	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0) FROM posts ORDER BY date DESC`
+	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0), COALESCE(status, 'published') FROM posts ORDER BY date DESC`
 	rows, err := db.conn.Query(query)
 	if err != nil {
 		return nil, err
@@ -125,7 +153,33 @@ func (db *DB) GetAllPosts() ([]models.Post, error) {
 	for rows.Next() {
 		var p models.Post
 		var tags string
-		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views); err != nil {
+		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views, &p.Status); err != nil {
+			return nil, err
+		}
+		// Parse tags from comma-separated string
+		if tags != "" {
+			p.Tags = parseTagsFromString(tags)
+		}
+		posts = append(posts, p)
+	}
+
+	return posts, rows.Err()
+}
+
+// GetPublishedPosts retrieves only published posts from the database
+func (db *DB) GetPublishedPosts() ([]models.Post, error) {
+	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0), COALESCE(status, 'published') FROM posts WHERE status = 'published' ORDER BY date DESC`
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []models.Post
+	for rows.Next() {
+		var p models.Post
+		var tags string
+		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views, &p.Status); err != nil {
 			return nil, err
 		}
 		// Parse tags from comma-separated string
@@ -140,12 +194,12 @@ func (db *DB) GetAllPosts() ([]models.Post, error) {
 
 // GetPostByID retrieves a single post by ID
 func (db *DB) GetPostByID(id string) (*models.Post, error) {
-	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0) FROM posts WHERE id = ?`
+	query := `SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0), COALESCE(status, 'published') FROM posts WHERE id = ?`
 	row := db.conn.QueryRow(query, id)
 
 	var p models.Post
 	var tags string
-	if err := row.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views); err != nil {
+	if err := row.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views, &p.Status); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -161,11 +215,16 @@ func (db *DB) GetPostByID(id string) (*models.Post, error) {
 
 // SavePost creates or updates a post
 func (db *DB) SavePost(post *models.Post) error {
+	// Set default status if not provided
+	if post.Status == "" {
+		post.Status = "published"
+	}
+
 	tags := joinTags(post.Tags)
 
 	query := `
-	INSERT INTO posts (id, title, date, category, summary, content, tags, views, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+	INSERT INTO posts (id, title, date, category, summary, content, tags, views, status, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 	ON CONFLICT(id) DO UPDATE SET
 		title = excluded.title,
 		date = excluded.date,
@@ -173,10 +232,11 @@ func (db *DB) SavePost(post *models.Post) error {
 		summary = excluded.summary,
 		content = excluded.content,
 		tags = excluded.tags,
+		status = excluded.status,
 		updated_at = CURRENT_TIMESTAMP
 	`
 
-	_, err := db.conn.Exec(query, post.ID, post.Title, post.Date, post.Category, post.Summary, post.Content, tags, post.Views)
+	_, err := db.conn.Exec(query, post.ID, post.Title, post.Date, post.Category, post.Summary, post.Content, tags, post.Views, post.Status)
 	return err
 }
 

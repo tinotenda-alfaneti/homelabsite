@@ -14,13 +14,14 @@ func (db *DB) SearchPosts(query string) ([]models.Post, error) {
 
 	// Search in title, content, tags, and category
 	searchQuery := `
-		SELECT id, title, date, category, summary, content, tags 
+		SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0), COALESCE(status, 'published')
 		FROM posts 
 		WHERE 
+			(status = 'published') AND (
 			title LIKE ? OR 
 			content LIKE ? OR 
 			category LIKE ? OR 
-			tags LIKE ?
+			tags LIKE ?)
 		ORDER BY date DESC
 	`
 
@@ -35,7 +36,7 @@ func (db *DB) SearchPosts(query string) ([]models.Post, error) {
 	for rows.Next() {
 		var p models.Post
 		var tags string
-		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags); err != nil {
+		if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views, &p.Status); err != nil {
 			return nil, err
 		}
 		if tags != "" {
@@ -55,9 +56,9 @@ func (db *DB) SearchPostsByTag(tag string) ([]models.Post, error) {
 
 	// Since tags are stored as comma-separated, we need to use LIKE
 	searchQuery := `
-		SELECT id, title, date, category, summary, content, tags 
+		SELECT id, title, date, category, summary, content, tags, COALESCE(views, 0), COALESCE(status, 'published')
 		FROM posts 
-		WHERE tags LIKE ?
+		WHERE status = 'published' AND tags LIKE ?
 		ORDER BY date DESC
 	`
 
@@ -80,7 +81,7 @@ func (db *DB) SearchPostsByTag(tag string) ([]models.Post, error) {
 		for rows.Next() {
 			var p models.Post
 			var tags string
-			if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags); err != nil {
+			if err := rows.Scan(&p.ID, &p.Title, &p.Date, &p.Category, &p.Summary, &p.Content, &tags, &p.Views, &p.Status); err != nil {
 				rows.Close()
 				return nil, err
 			}

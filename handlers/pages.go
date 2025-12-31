@@ -12,7 +12,7 @@ import (
 
 func (app *App) HandleHome(w http.ResponseWriter, _ *http.Request) {
 	projects, _ := app.DB.GetAllProjects()
-	posts, _ := app.DB.GetAllPosts()
+	posts, _ := app.DB.GetPublishedPosts()
 
 	data := map[string]interface{}{
 		"Title":    "Atarnet Homelab - K8s Infrastructure at Home",
@@ -41,7 +41,7 @@ func (app *App) HandleProjects(w http.ResponseWriter, _ *http.Request) {
 
 func (app *App) HandleBlog(w http.ResponseWriter, r *http.Request) {
 	category := r.URL.Query().Get("category")
-	posts, _ := app.DB.GetAllPosts()
+	posts, _ := app.DB.GetPublishedPosts()
 
 	if category != "" {
 		filtered := []models.Post{}

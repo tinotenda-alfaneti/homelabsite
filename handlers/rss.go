@@ -10,7 +10,7 @@ import (
 
 func (app *App) HandleRSS(w http.ResponseWriter, r *http.Request) {
 	// Get posts from database
-	posts, err := app.DB.GetAllPosts()
+	posts, err := app.DB.GetPublishedPosts()
 	if err != nil {
 		log.Printf("Error getting posts for RSS: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

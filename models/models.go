@@ -61,6 +61,7 @@ type Post struct {
 	Content  string    `yaml:"content" json:"content"`
 	Tags     []string  `yaml:"tags" json:"tags"`
 	Views    int       `yaml:"views" json:"views"`
+	Status   string    `yaml:"status" json:"status"` // "draft" or "published"
 }
 
 type User struct {
