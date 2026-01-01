@@ -592,6 +592,8 @@ body {
     border-radius: 20px;
     font-weight: 500;
     transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .skill-badge:hover {

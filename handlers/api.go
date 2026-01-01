@@ -19,11 +19,20 @@ const htmxRequestHeader = "true"
 
 func (app *App) HandleAPIProjects(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
+	skill := r.URL.Query().Get("skill")
 
 	// Get projects from database
 	projects, err := app.DB.GetAllProjects()
 	if err != nil {
 		log.Printf("Error getting projects from database: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Get posts from database
+	posts, err := app.DB.GetAllPosts()
+	if err != nil {
+		log.Printf("Error getting posts from database: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -38,11 +47,39 @@ func (app *App) HandleAPIProjects(w http.ResponseWriter, r *http.Request) {
 		projects = filtered
 	}
 
+	if skill != "" {
+		filteredProjects := []models.Project{}
+		for _, p := range projects {
+			techs := strings.Split(p.Tech, " + ")
+			for _, tech := range techs {
+				tech = strings.TrimSpace(tech)
+				if tech == skill {
+					filteredProjects = append(filteredProjects, p)
+					break
+				}
+			}
+		}
+		projects = filteredProjects
+
+		filteredPosts := []models.Post{}
+		for _, p := range posts {
+			for _, tag := range p.Tags {
+				tag = strings.TrimSpace(tag)
+				if tag == skill {
+					filteredPosts = append(filteredPosts, p)
+					break
+				}
+			}
+		}
+		posts = filteredPosts
+	}
+
 	// Check if HTMX request
 	if r.Header.Get("HX-Request") == htmxRequestHeader {
 		// Return HTML fragment
 		data := map[string]interface{}{
 			"Projects": projects,
+			"Posts":    posts,
 		}
 		w.Header().Set("Content-Type", "text/html")
 		if err := app.Templates.ExecuteTemplate(w, "projects-grid", data); err != nil {

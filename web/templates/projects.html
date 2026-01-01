@@ -42,15 +42,18 @@
         {{end}}
 
 <section class="page-header">
-    <h1>Projects</h1>
-    <p>All the projects I've worked on in my homelab and beyond</p>
+    <h1>{{if .Skill}}Projects using {{.Skill}}{{else}}Projects{{end}}</h1>
+    <p>{{if .Skill}}All projects that use {{.Skill}}{{else}}All the projects I've worked on in my homelab and beyond{{end}}</p>
 </section>
 
 <div class="filters">
-    <button class="filter-btn active" hx-get="/api/projects" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">All</button>
-    <button class="filter-btn" hx-get="/api/projects?status=internal" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Internal</button>
-    <button class="filter-btn" hx-get="/api/projects?status=public" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Public</button>
-    <button class="filter-btn" hx-get="/api/projects?status=development" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Development</button>
+    <button class="filter-btn{{if not .Skill}} active{{end}}" hx-get="/api/projects" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">All</button>
+    {{if .Skill}}
+    <button class="filter-btn active" hx-get="/api/projects?skill={{.Skill}}" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">{{.Skill}}</button>
+    {{end}}
+    <button class="filter-btn" hx-get="/api/projects?status=internal{{if .Skill}}&skill={{.Skill}}{{end}}" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Internal</button>
+    <button class="filter-btn" hx-get="/api/projects?status=public{{if .Skill}}&skill={{.Skill}}{{end}}" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Public</button>
+    <button class="filter-btn" hx-get="/api/projects?status=development{{if .Skill}}&skill={{.Skill}}{{end}}" hx-target="#projects-container" hx-swap="innerHTML" onclick="setActiveFilter(this)">Development</button>
 </div>
 
 <script>
@@ -155,6 +158,21 @@ function setActiveFilter(btn) {
     {{ if ne .URL "" }}
     <a href="{{ .URL }}" target="_blank" class="project-link">Visit →</a>
     {{ end }}
+</div>
+{{ end }}
+{{ if .Posts }}
+<h3>Related Posts</h3>
+<div class="posts-grid">
+{{ range .Posts }}
+<div class="post-card">
+    <h4><a href="/blog/{{ .ID }}">{{ .Title }}</a></h4>
+    <p>{{ .Summary }}</p>
+    <div class="post-meta">
+        <span class="category-badge">{{ .Category }}</span>
+        <time>{{ .Date.Format "Jan 2, 2006" }}</time>
+    </div>
+</div>
+{{ end }}
 </div>
 {{ end }}
 {{end}}

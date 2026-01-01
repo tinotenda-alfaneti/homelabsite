@@ -111,7 +111,7 @@
                 </p>
                 <div class="skills-grid">
                     {{ range .Skills }}
-                    <span class="skill-badge">{{ . }}</span>
+                    <a href="/projects?skill={{ . }}" class="skill-badge">{{ . }}</a>
                     {{ end }}
                 </div>
             </section>

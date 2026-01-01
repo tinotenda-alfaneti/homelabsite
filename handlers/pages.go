@@ -22,19 +22,55 @@ func (app *App) HandleHome(w http.ResponseWriter, _ *http.Request) {
 	app.Render(w, "home.html", data)
 }
 
-func (app *App) HandleProjects(w http.ResponseWriter, _ *http.Request) {
+func (app *App) HandleProjects(w http.ResponseWriter, r *http.Request) {
 	projects, _ := app.DB.GetAllProjects()
+	posts, _ := app.DB.GetAllPosts()
+	skill := r.URL.Query().Get("skill")
+
+	if skill != "" {
+		filteredProjects := []models.Project{}
+		for _, p := range projects {
+			techs := strings.Split(p.Tech, " + ")
+			for _, tech := range techs {
+				tech = strings.TrimSpace(tech)
+				if tech == skill {
+					filteredProjects = append(filteredProjects, p)
+					break
+				}
+			}
+		}
+		projects = filteredProjects
+
+		filteredPosts := []models.Post{}
+		for _, p := range posts {
+			for _, tag := range p.Tags {
+				tag = strings.TrimSpace(tag)
+				if tag == skill {
+					filteredPosts = append(filteredPosts, p)
+					break
+				}
+			}
+		}
+		posts = filteredPosts
+	}
 
 	// Build breadcrumbs
 	breadcrumbs := []models.Breadcrumb{
 		{Name: "Home", URL: "/"},
-		{Name: "Projects", URL: ""},
+		{Name: "Projects", URL: "/projects"},
+	}
+	if skill != "" {
+		breadcrumbs = append(breadcrumbs, models.Breadcrumb{Name: skill, URL: ""})
+	} else {
+		breadcrumbs[len(breadcrumbs)-1].URL = ""
 	}
 
 	data := map[string]interface{}{
 		"Title":       "Projects - Atarnet Homelab",
 		"Projects":    projects,
+		"Posts":       posts,
 		"Breadcrumbs": breadcrumbs,
+		"Skill":       skill,
 	}
 	app.Render(w, "projects.html", data)
 }
@@ -98,8 +134,9 @@ func (app *App) HandleBlogPost(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) HandleAbout(w http.ResponseWriter, _ *http.Request) {
 	projects, _ := app.DB.GetAllProjects()
+	posts, _ := app.DB.GetAllPosts()
 
-	// Aggregate unique skills from projects
+	// Aggregate unique skills from projects tech and posts tags
 	skillsMap := make(map[string]bool)
 	for _, p := range projects {
 		techs := strings.Split(p.Tech, " + ")
@@ -107,6 +144,14 @@ func (app *App) HandleAbout(w http.ResponseWriter, _ *http.Request) {
 			tech = strings.TrimSpace(tech)
 			if tech != "" {
 				skillsMap[tech] = true
+			}
+		}
+	}
+	for _, p := range posts {
+		for _, tag := range p.Tags {
+			tag = strings.TrimSpace(tag)
+			if tag != "" {
+				skillsMap[tag] = true
 			}
 		}
 	}
