@@ -14,7 +14,7 @@ cat >> /tmp/helm-data-values.yaml <<'EOF'
 EOF
 
 # Indent services.yaml content by 4 spaces
-cat data/services.yaml | sed 's/^/    /' >> /tmp/helm-data-values.yaml
+cat data/projects.yaml | sed 's/^/    /' >> /tmp/helm-data-values.yaml
 
 echo "Generated /tmp/helm-data-values.yaml with embedded data"
 echo "Use with: helm upgrade --install ... -f /tmp/helm-data-values.yaml"
