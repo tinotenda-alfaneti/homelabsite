@@ -163,7 +163,7 @@ pipeline {
               --set image.repository=${IMAGE_NAME} \
               --set image.tag=${TAG} \
               -f /tmp/helm-data-values.yaml \
-              --wait --timeout 5m
+              --wait --timeout 10m
 
             echo "Deployment complete!"
 
