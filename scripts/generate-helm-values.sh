@@ -10,10 +10,10 @@ EOF
 cat data/posts.yaml | sed 's/^/    /' >> /tmp/helm-data-values.yaml
 
 cat >> /tmp/helm-data-values.yaml <<'EOF'
-  services:
+  projects:
 EOF
 
-# Indent services.yaml content by 4 spaces
+# Indent projects.yaml content by 4 spaces
 cat data/projects.yaml | sed 's/^/    /' >> /tmp/helm-data-values.yaml
 
 echo "Generated /tmp/helm-data-values.yaml with embedded data"

@@ -9,12 +9,13 @@ spec:
   selector:
     matchLabels:
       {{- include "app.selectorLabels" . | nindent 6 }}
-  template:
+      template:
     metadata:
       labels:
         {{- include "app.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/init-data: {{ include (print $.Template.BasePath "/init-configmap.yaml") . | sha256sum }}
     spec:
       {{- if .Values.persistence.enabled }}
       initContainers:
