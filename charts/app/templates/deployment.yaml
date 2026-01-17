@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       {{- include "app.selectorLabels" . | nindent 6 }}
-      template:
+  template:
     metadata:
       labels:
         {{- include "app.selectorLabels" . | nindent 8 }}
