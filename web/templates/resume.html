@@ -1,0 +1,127 @@
+{{define "resume.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/js/theme.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">Atarnet Homelab</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/resume">Resume</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <section>
+            <h1>TINOTENDA RODNEY ALFANETI</h1>
+            <p>tinotenda.alfaneti@ashesi.edu.gh | +233209246449 | Zimbabwean | <a href="https://www.linkedin.com/in/tinotenda-rodney-alfaneti/">LinkedIn</a></p>
+
+            <h2>Opening Profile</h2>
+            <p>A grounded and solution-oriented Aspiring Software Engineer with a diverse work background. I have broad technical talents and an in-depth understanding of programming software and applications. Adept at motivating self and others. A committed, detail-oriented, innovative problem-solver capable of exceeding expectations and meeting company objectives. Passionate about data science and machine learning, software development, and implementation of modern technology to close financial gaps.</p>
+
+            <h2>Education</h2>
+            <p><strong>Ashesi University, Ghana</strong> — Expected Date of Graduation: Jul 2024<br>
+            BSc. Computer Science<br>
+            4.0/4.0 GPA (GPA) | 3.78/4.0 GPA (Cumulative)</p>
+
+            <h2>Achievement / Awards</h2>
+            <ul>
+                <li>The Mastercard Foundation Scholars Program, Ashesi University (Jan 2021 - Present)</li>
+                <li>Dean’s List, Ashesi University (Jan 2020 – Dec 2022)</li>
+                <li>Software Development Coaching, Microsoft ADC Game of Learners Clinic (Oct 2021 – Dec 2021)</li>
+            </ul>
+
+            <h2>Certifications</h2>
+            <ul>
+                <li>Microsoft ADC Game of Learners Clinic — Software Development Coaching (Oct 2021 – Dec 2021)</li>
+                <li>Additional certifications: (please provide names/dates to list here)</li>
+            </ul>
+
+            <h2>Professional Experience</h2>
+            <h3>CHARMINGBRAINS SOFTWARE DEVELOPERS</h3>
+            <p><em>Backend Developer - Freelance, Zimbabwe</em> — Jan 2022 - Present</p>
+            <ul>
+                <li>Developing an e-learning website using Spring Framework and MongoDB.</li>
+                <li>Designed and developed an e-learning website with over 80+ courses using Django Web Framework and SQL Database.</li>
+                <li>Collaborated with developers through JIRA, Slack, doing stand-up sessions, which aided in speeding the creation of the e-learning website.</li>
+                <li>Monitored the e-learning website with GitLab for version control, improving teamwork effectiveness.</li>
+            </ul>
+
+            <h3>KWAABA FOUNDATION</h3>
+            <p><em>Project Assistant Intern, Ghana</em> — Jun 2022 – Aug 2022</p>
+            <ul>
+                <li>Leveraged online databases to find information pertinent to the organization’s needs around blood donations in second-cycle schools which boosted the units of blood donated by 5.37%.</li>
+                <li>Conducted statistical analysis in RStudio using R to analyze quarterly patterns of blood donations based on data from the organization's Blood Donation Tracker App.</li>
+                <li>Designed flyers and compiled marketing videos using Canva and Adobe Premiere Pro tools, increasing following and website traffic by 20%.</li>
+            </ul>
+
+            <h3>MUSTARD SEED ORPHANCARE PROJECT</h3>
+            <p><em>IT Support Intern, Zimbabwe</em> — Jun 2020 - Dec 2021</p>
+            <ul>
+                <li>Installed and configured five software applications, including the Microsoft Access database.</li>
+                <li>Coached 20+ new staff members on using the organization's different technologies.</li>
+                <li>Provided IT support including Windows installation, license updates, internet troubleshooting, and password updates.</li>
+            </ul>
+
+            <h2>Projects</h2>
+            <p><strong>ALA/mDoc/MICROSOFT – AI for Health Hackathon</strong> — Jul 2022 – Nov 2022</p>
+            <ul>
+                <li>Designed and built an AI-powered chatbot to help hospitals improve patient access to specialist facilities. Tools: Microsoft Azure, Git/GitHub.</li>
+            </ul>
+            <p><strong>ASHESI DLAB, Health Kiosk and Machine Learning</strong> — Jan 2022 – Dec 2022</p>
+            <ul>
+                <li>Developed a multi-page web app using StreamLit to demonstrate neural network models and recommendations.</li>
+            </ul>
+
+            <h2>Key Skills</h2>
+            <p>Major Languages: Java, Python, SQL, C/C++<br>
+            Minor Languages/Frameworks: Shell scripting, HTML, R, CSS, Spring/Spring Boot, Django<br>
+            Tools: Linux/Ubuntu, Vi, VS Code, Windows, MySQL, IntelliJ, Mongosh</p>
+
+            <h2>Hobbies</h2>
+            <p>Poetry — my poems are available on AllPoetry under my name: <a href="https://allpoetry.com/Tinotenda+Rodney+Alfaneti">AllPoetry — Tinotenda Rodney Alfaneti</a></p>
+
+            <h2>Links & Download</h2>
+            <p>GitHub: <a href="https://github.com/tinotenda-alfaneti">https://github.com/tinotenda-alfaneti</a></p>
+            <p>
+                <a class="btn btn-primary" href="/resume/download">Download (HTML)</a>
+                <button class="btn" id="print-resume">Print / Save as PDF</button>
+            </p>
+            <script>
+                document.getElementById('print-resume').addEventListener('click', function() {
+                    window.print();
+                });
+            </script>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Atarnet Homelab &copy; Copyright 2025</p>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/projects">Projects</a>
+                <a href="/blog">Blog</a>
+                <a href="/about">About</a>
+                <a href="/resume">Resume</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

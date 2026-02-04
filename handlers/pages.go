@@ -168,6 +168,34 @@ func (app *App) HandleAbout(w http.ResponseWriter, _ *http.Request) {
 	app.Render(w, "about.html", data)
 }
 
+func (app *App) HandleResume(w http.ResponseWriter, _ *http.Request) {
+	data := map[string]interface{}{
+		"Title": "Resume - Atarnet Homelab",
+	}
+	app.Render(w, "resume.html", data)
+}
+
+// HandleResumeDownload renders the resume template to HTML and returns it as a downloadable attachment.
+func (app *App) HandleResumeDownload(w http.ResponseWriter, _ *http.Request) {
+	data := map[string]interface{}{
+		"Title": "Resume - Atarnet Homelab",
+	}
+
+	var buf strings.Builder
+	if err := app.Templates.ExecuteTemplate(&buf, "resume.html", data); err != nil {
+		log.Printf("Error rendering resume for download: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	content := buf.String()
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=Tinotenda_Resume.html")
+	if _, err := w.Write([]byte(content)); err != nil {
+		log.Printf("Error writing resume download response: %v", err)
+	}
+}
+
 func (app *App) HandleAdmin(w http.ResponseWriter, _ *http.Request) {
 	posts, _ := app.DB.GetAllPosts()
 

@@ -139,6 +139,8 @@ func main() {
 	r.HandleFunc("/blog/{id}", app.HandleBlogPost).Methods("GET")
 	r.HandleFunc("/search", app.HandleSearchPage).Methods("GET")
 	r.HandleFunc("/about", app.HandleAbout).Methods("GET")
+	r.HandleFunc("/resume", app.HandleResume).Methods("GET")
+	r.HandleFunc("/resume/download", app.HandleResumeDownload).Methods("GET")
 	r.HandleFunc("/health", app.HandleHealth).Methods("GET")
 
 	// Auth routes
