@@ -140,8 +140,14 @@
                     cluster, CI/CD pipeline, and key services running in production.
                 </p>
                 <div class="architecture-figure">
-                    <img src="/static/img/homelab-architecture.jpeg" alt="Atarnet homelab architecture diagram showing router, MicroK8s cluster, Cloudflare tunnels, CI/CD, and core services." loading="lazy">
+                    <button class="architecture-image-btn" type="button" aria-label="Open architecture diagram">
+                        <img src="/static/img/homelab-architecture.jpeg" alt="Atarnet homelab architecture diagram showing router, MicroK8s cluster, Cloudflare tunnels, CI/CD, and core services." loading="lazy">
+                    </button>
                     <p class="architecture-caption">Full stack overview of the homelab hardware, cluster, and service topology.</p>
+                </div>
+                <div class="architecture-lightbox" id="architecture-lightbox" aria-hidden="true">
+                    <button class="architecture-lightbox-close" type="button" aria-label="Close diagram">Close</button>
+                    <img src="/static/img/homelab-architecture.jpeg" alt="Atarnet homelab architecture diagram full screen view.">
                 </div>
                 <div class="architecture-grid">
                     <div class="architecture-card">
@@ -235,6 +241,40 @@
                     way to learn is to build, break, fix, and share the knowledge along the way.
                 </p>
             </section>
+            <script>
+                (function() {
+                    var lightbox = document.getElementById('architecture-lightbox');
+                    var openBtn = document.querySelector('.architecture-image-btn');
+                    var closeBtn = document.querySelector('.architecture-lightbox-close');
+
+                    if (!lightbox || !openBtn || !closeBtn) {
+                        return;
+                    }
+
+                    function openLightbox() {
+                        lightbox.classList.add('is-open');
+                        lightbox.setAttribute('aria-hidden', 'false');
+                    }
+
+                    function closeLightbox() {
+                        lightbox.classList.remove('is-open');
+                        lightbox.setAttribute('aria-hidden', 'true');
+                    }
+
+                    openBtn.addEventListener('click', openLightbox);
+                    closeBtn.addEventListener('click', closeLightbox);
+                    lightbox.addEventListener('click', function(event) {
+                        if (event.target === lightbox) {
+                            closeLightbox();
+                        }
+                    });
+                    document.addEventListener('keydown', function(event) {
+                        if (event.key === 'Escape') {
+                            closeLightbox();
+                        }
+                    });
+                })();
+            </script>
         </div>
     </main>
 

@@ -1010,14 +1010,35 @@ body {
 
 .architecture-section .architecture-figure {
     margin: 2rem 0;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.architecture-image-btn {
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: zoom-in;
+    width: 100%;
+    text-align: left;
 }
 
 .architecture-figure img {
     width: 100%;
+    max-width: 100%;
     height: auto;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
+    max-height: 70vh;
+    object-fit: contain;
+    display: block;
+    margin: 0;
+    border-radius: 6px;
     background: var(--bg);
 }
 
@@ -1025,6 +1046,49 @@ body {
     margin-top: 0.75rem;
     font-size: 0.95rem;
     color: var(--text-secondary);
+}
+
+.architecture-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 20, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem;
+    z-index: 999;
+}
+
+.architecture-lightbox.is-open {
+    display: flex;
+}
+
+.architecture-lightbox img {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--bg);
+}
+
+.architecture-lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.architecture-lightbox-close:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .architecture-grid {
