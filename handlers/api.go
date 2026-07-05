@@ -72,6 +72,11 @@ func (app *App) HandleAPIProjects(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		posts = filteredPosts
+	} else {
+		// No skill filter means there's no relevance signal linking posts to
+		// the shown projects (e.g. a plain status filter) - don't show a
+		// "Related Posts" list that isn't actually related.
+		posts = nil
 	}
 
 	// Check if HTMX request
