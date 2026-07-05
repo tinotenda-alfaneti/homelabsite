@@ -67,10 +67,10 @@
                     <div class="setup-item">
                         <h3>Compute Layer</h3>
                         <ul>
-                            <li>3x Raspberry Pi 4 nodes (ARM64)</li>
+                            <li>2x Raspberry Pi 4 nodes (ARM64)</li>
                             <li>MicroK8s Kubernetes distribution</li>
                             <li>Calico CNI for pod networking</li>
-                            <li>High-availability control plane</li>
+                            <li>Single control-plane node (no HA failover)</li>
                         </ul>
                     </div>
                     <div class="setup-item">
@@ -95,9 +95,8 @@
                     <div class="setup-item">
                         <h3>Observability</h3>
                         <ul>
-                            <li>Prometheus for metrics collection</li>
-                            <li>Grafana for visualization & alerting</li>
                             <li>Uptime Kuma for service monitoring</li>
+                            <li>Kubernetes metrics-server for resource metrics</li>
                             <li>Container-native logging</li>
                         </ul>
                     </div>
@@ -119,17 +118,15 @@
             <section class="about-section">
                 <h2>Production Services</h2>
                 <p>
-                    Running 10+ production services across multiple domains, each containerized, deployed via Helm, 
-                    and monitored 24/7. These aren't hobby projects—they're real applications serving real users 
-                    with uptime SLAs and automated failover.
+                    Running 10+ production services across multiple domains—most containerized and deployed via Helm,
+                    plus a couple of host-level services like the blog—and monitored 24/7. These aren't hobby
+                    projects—they're real applications serving real users.
                 </p>
                 <ul>
                     <li><strong>AvidLearner:</strong> AI-powered Go learning platform with real-time typing challenges and automated lesson generation</li>
-                    <li><strong>Ebook Reader:</strong> Self-hosted digital library with progress sync, annotations, and cross-device reading</li>
                     <li><strong>Rebalancer Operator:</strong> Custom Kubernetes operator implementing intelligent pod redistribution algorithms</li>
                     <li><strong>LabMan CLI:</strong> Sophisticated remote homelab management toolkit with SSH multiplexing and session management</li>
-                    <li><strong>Music Streaming:</strong> Personal Navidrome instance serving my entire music collection with Subsonic compatibility</li>
-                    <li><strong>Monitoring Stack:</strong> Comprehensive observability with Prometheus, Grafana, and Uptime Kuma</li>
+                    <li><strong>Monitoring Stack:</strong> Service uptime monitoring with Uptime Kuma, backed by Kubernetes metrics-server</li>
                 </ul>
             </section>
 
@@ -171,7 +168,7 @@
                         <ul>
                             <li>Jenkins + Kaniko for CI/CD</li>
                             <li>Velero for backups and restores</li>
-                            <li>Uptime Kuma, Prometheus, Grafana monitoring</li>
+                            <li>Uptime Kuma monitoring + metrics-server</li>
                         </ul>
                     </div>
                 </div>
