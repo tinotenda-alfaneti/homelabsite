@@ -422,13 +422,13 @@ posts:
 
         My homelab runs on Kubernetes with the following components:
 
-        - **Kubernetes Cluster**: 3-node cluster (1 control plane, 2 workers)
+        - **Kubernetes Cluster**: 2-node cluster (both nodes run control-plane + worker roles)
         - **Storage**: Local PersistentVolumes with dynamic provisioning
-        - **Networking**: Flannel CNI with MetalLB for LoadBalancer services
+        - **Networking**: Calico CNI for pod networking
         - **Ingress**: NGINX Ingress Controller with Cloudflare DNS
         - **CI/CD**: Jenkins with Kaniko for containerized builds
         - **Security**: Trivy for vulnerability scanning at build time
-        - **Monitoring**: Prometheus + Grafana (coming soon)
+        - **Monitoring**: Uptime Kuma for service monitoring
 
         ## Deployment Pipeline
 
@@ -669,8 +669,6 @@ posts:
         ## Monitoring
 
         - Uptime Kuma for service availability
-        - Prometheus for metrics (coming soon)
-        - Loki for log aggregation (planned)
 
         ## Lessons Learned
 
@@ -699,10 +697,9 @@ posts:
         ### 1. Infrastructure Foundation
 
         **Bare Metal Cluster:**
-        - 3-node Kubernetes cluster (1 control plane, 2 workers)
+        - 2-node Kubernetes cluster (both nodes run control-plane + worker roles)
         - Local storage with dynamic PersistentVolume provisioning
-        - Flannel CNI for pod networking
-        - MetalLB for LoadBalancer service types
+        - Calico CNI for pod networking
 
         **Network Architecture:**
         - Segregated VLANs for management, services, and user traffic
@@ -715,7 +712,7 @@ posts:
         The brain of the operation - managing workload orchestration, scheduling, and service discovery across all nodes.
 
         **Key Components:**
-        - etcd for distributed configuration
+        - k8s-dqlite (SQLite/Raft-based datastore) for distributed configuration
         - kube-apiserver as the central management interface
         - kube-scheduler for intelligent pod placement
         - kube-controller-manager for cluster state reconciliation
@@ -730,7 +727,7 @@ posts:
 
         **Service Discovery:**
         - CoreDNS for internal service resolution
-        - Kubernetes Services with ClusterIP/LoadBalancer
+        - Kubernetes Services with ClusterIP
         - Headless services for StatefulSets
 
         ### 4. Application Services
@@ -741,9 +738,8 @@ posts:
         - **Rebalancer Operator**: Custom Kubernetes operator for pod optimization
 
         **Media & Content:**
-        - **Navidrome**: Self-hosted music streaming (Subsonic API)
         - **Ebook Reader**: Digital library with progress tracking
-        - **Poetry Blog**: Content publishing platform
+        - **WriteFreely**: Minimalist blogging platform, running as a host-level service
 
         **DevOps & Automation:**
         - **Jenkins**: CI/CD orchestration with Kaniko builds
@@ -751,9 +747,8 @@ posts:
         - **Uptime Kuma**: Service health monitoring
 
         **Observability Stack:**
-        - **Prometheus**: Metrics collection and alerting
-        - **Grafana**: Visualization and dashboards
-        - **Loki**: Log aggregation (planned)
+        - **Uptime Kuma**: Service uptime monitoring
+        - **Kubernetes metrics-server**: Resource metrics (CPU/memory)
 
         ### 5. CI/CD Pipeline Flow
 
@@ -791,10 +786,9 @@ posts:
         - Volume snapshots for backup
 
         **Data Flow:**
-        - Databases use local SSDs for low latency
-        - Media files on larger HDDs
+        - Databases and media both live on each node's SD-card storage
         - Configuration in ConfigMaps and Secrets
-        - Logs aggregated to centralized storage
+        - Container and system logs kept locally per node
 
         ### 8. Security Model
 
@@ -824,20 +818,15 @@ posts:
         ### 9. Monitoring and Observability
 
         **Metrics Collection:**
-        - Prometheus scrapes metrics from all services
-        - Node exporters on each Kubernetes node
-        - Application metrics via client libraries
+        - Kubernetes metrics-server for CPU/memory resource metrics
         - Custom metrics from Kubernetes API
 
         **Visualization:**
-        - Grafana dashboards for real-time insights
-        - Uptime Kuma for service availability
-        - Alert manager for critical events
+        - Uptime Kuma for service availability and uptime history
 
         **Logging:**
         - Container logs aggregated by Kubernetes
-        - Planned Loki deployment for log queries
-        - Audit logs for security events
+        - Journald/systemd logs on each node
 
         ### 10. Service Interactions
 
