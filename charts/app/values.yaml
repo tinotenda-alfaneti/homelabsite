@@ -20,10 +20,15 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+    - host: www.alfaneti.uk
+      paths:
+        - path: /
+          pathType: Prefix
   tls:
     - secretName: homelabsite-tls
       hosts:
         - www.atarnet.org
+        - www.alfaneti.uk
 
 resources:
   limits:
